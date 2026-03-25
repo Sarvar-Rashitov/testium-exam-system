@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}{{ group.title }} - {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'exam_list' %}">Imtihonlar</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'exam_detail' exam.pk %}">{{ exam.title }}</a></li>
+            <li class="breadcrumb-item active">{{ group.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0">{{ group.title }}</h4>
+                <small class="text-muted">{{ group.get_question_type_display }}</small>
+            </div>
+            <a href="{% url 'question_create' group.pk %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Savol qo'shish
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <strong>Ko'rsatmalar:</strong>
+                <p>{{ group.instructions }}</p>
+            </div>
+
+            {% if group.passage_text %}
+            <div class="mb-3">
+                <strong>Passage:</strong>
+                <div class="border p-3 bg-light">
+                    {{ group.passage_text|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if group.image %}
+            <div class="mb-3">
+                <strong>Rasm:</strong><br>
+                <img src="{{ group.image.url }}" alt="Group image" class="img-fluid" style="max-width: 500px;">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Savollar ({{ questions.count }})</h5>
+        </div>
+        <div class="card-body">
+            {% if questions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>Savol</th>
+                                <th>To'g'ri javob</th>
+                                <th>Ball</th>
+                                <th>Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for q in questions %}
+                            <tr>
+                                <td>{{ q.question_number }}</td>
+                                <td>
+                                    {% if q.question_text %}
+                                        {{ q.question_text|truncatewords:15 }}
+                                    {% elif q.statement %}
+                                        {{ q.statement|truncatewords:15 }}
+                                    {% elif q.sentence_text %}
+                                        {{ q.sentence_text|truncatewords:15 }}
+                                    {% else %}
+                                        Savol {{ q.question_number }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if q.correct_answer %}
+                                        {{ q.correct_answer }}
+                                    {% elif q.correct_answers %}
+                                        {{ q.correct_answers }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ q.points }}</td>
+                                <td>
+                                    <a href="{% url 'question_delete' q.pk %}" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Hali savollar qo'shilmagan. Yuqoridagi tugma orqali savol qo'shing.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block title %}{{ exam.title }} - Imtihon{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'exam_list' %}">Imtihonlar</a></li>
+                    <li class="breadcrumb-item active">{{ exam.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">{{ exam.title }}</h4>
+                    <div>
+                        <a href="{% url 'exam_edit' exam.pk %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil"></i> Tahrirlash
+                        </a>
+                        <a href="{% url 'exam_delete' exam.pk %}" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i> O'chirish
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>{{ exam.description }}</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><i class="bi bi-clock"></i> <strong>Davomiyligi:</strong> {{ exam.duration }} daqiqa</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><i class="bi bi-layers"></i> <strong>Sectionlar:</strong> {{ sections.count }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><i class="bi bi-question-circle"></i> <strong>Savollar:</strong> {{ total_questions }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sections -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-layers"></i> Sectionlar</h5>
+                    <a href="{% url 'section_create' exam.pk %}" class="btn btn-sm btn-success">
+                        <i class="bi bi-plus-circle"></i> Section qo'shish
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if sections %}
+                    <div class="accordion" id="sectionsAccordion">
+                        {% for section in sections %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ section.id }}">
+                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ section.id }}">
+                                    <strong>{{ section.title }}</strong>
+                                    <span class="badge bg-info ms-2">{{ section.get_module_display }}</span>
+                                    <span class="badge bg-secondary ms-2">{{ section.question_groups.count }} guruh</span>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ section.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#sectionsAccordion">
+                                <div class="accordion-body">
+                                    {% if section.passage_text %}
+                                    <div class="mb-3">
+                                        <strong>Passage:</strong>
+                                        <div class="border p-2 bg-light" style="max-height: 200px; overflow-y: auto;">
+                                            {{ section.passage_text|linebreaks|truncatewords:100 }}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    {% if section.audio_file or section.audio_url %}
+                                    <div class="mb-3">
+                                        <strong><i class="bi bi-volume-up"></i> Audio:</strong>
+                                        {% if section.audio_file %}
+                                        <audio controls class="w-100">
+                                            <source src="{{ section.audio_file.url }}" type="audio/mpeg">
+                                        </audio>
+                                        {% elif section.audio_url %}
+                                        <a href="{{ section.audio_url }}" target="_blank">{{ section.audio_url }}</a>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mb-3">
+                                        <strong>Savol guruhlari:</strong>
+                                        <a href="{% url 'question_group_create' section.pk %}" class="btn btn-sm btn-primary ms-2">
+                                            <i class="bi bi-plus"></i> Guruh qo'shish
+                                        </a>
+                                    </div>
+
+                                    {% if section.question_groups.all %}
+                                    <div class="list-group">
+                                        {% for group in section.question_groups.all %}
+                                        <a href="{% url 'question_group_detail' group.pk %}" class="list-group-item list-group-item-action">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>{{ group.title }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ group.get_question_type_display }}</small>
+                                                </div>
+                                                <i class="bi bi-chevron-right"></i>
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    <p class="text-muted">Hali guruhlar yo'q</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle"></i> Hozircha sectionlar yo'q. Yuqoridagi tugma orqali section qo'shing.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Links -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-link-45deg"></i> Linklar</h5>
+                    <a href="{% url 'generate_link' exam.pk %}" class="btn btn-sm btn-success">
+                        <i class="bi bi-plus-circle"></i> Yangi
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if links %}
+                    {% for link in links %}
+                    <div class="exam-link mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted">{{ link.created_at|date:"d.m.Y H:i" }}</small>
+                            {% if link.is_valid %}
+                            <span class="badge bg-success">Faol</span>
+                            {% else %}
+                            <span class="badge bg-danger">Nofaol</span>
+                            {% endif %}
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <input type="text" class="form-control" value="{{ request.scheme }}://{{ request.get_host }}{% url 'exam_start' link.unique_token %}" id="link-{{ link.id }}" readonly>
+                            <button class="btn btn-outline-primary copy-btn" onclick="copyLink('link-{{ link.id }}')">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">
+                            Foydalanish: {{ link.use_count }}{% if link.max_uses %}/{{ link.max_uses }}{% endif %}
+                        </small>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted text-center">Linklar yo'q</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Qo'llanma</h6>
+                </div>
+                <div class="card-body">
+                    <ol class="small">
+                        <li>Section yarating (Reading, Listening, etc.)</li>
+                        <li>Section ichida savol guruhi yarating</li>
+                        <li>Guruh ichiga savollar qo'shing</li>
+                        <li>Link yaratib talabalar bilan ulashing</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyLink(id) {
+    const input = document.getElementById(id);
+    input.select();
+    document.execCommand('copy');
+    alert('Link nusxalandi!');
+}
+</script>
+{% endblock %}

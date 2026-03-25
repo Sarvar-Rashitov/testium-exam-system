@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ title }}</h4>
+                    <small class="text-muted">{{ section.title }} - {{ section.exam.title }}</small>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Savol guruhi nomi *</label>
+                            {{ form.title }}
+                            <small class="text-muted">Masalan: "Questions 1-5" yoki "Questions 6-10"</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Savol turi *</label>
+                            {{ form.question_type }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Ko'rsatmalar *</label>
+                            {{ form.instructions }}
+                            <small class="text-muted">Masalan: "Choose the correct answer" yoki "Complete the sentences"</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Passage matni (ixtiyoriy)</label>
+                            {{ form.passage_text }}
+                            <small class="text-muted">Agar bu guruh uchun alohida passage kerak bo'lsa</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Rasm (ixtiyoriy)</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tartib</label>
+                            {{ form.order }}
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'exam_detail' section.exam.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Bekor qilish
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Saqlash
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

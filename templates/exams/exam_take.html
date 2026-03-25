@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}{{ exam.title }} - Imtihon{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Timer -->
+    <div class="card mb-4 border-danger">
+        <div class="card-body text-center">
+            <h4>Qolgan vaqt: <span id="timer" class="timer">{{ exam.duration }}:00</span></h4>
+            <div class="progress" style="height: 10px;">
+                <div id="timeProgress" class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-9">
+            <form id="examForm">
+                {% csrf_token %}
+                <input type="hidden" name="student_id" value="{{ student.id }}">
+                <input type="hidden" name="exam_link_token" value="{{ exam_link.unique_token }}">
+                <input type="hidden" id="startedAt" value="">
+                <input type="hidden" id="tabSwitches" value="0">
+
+                {% for question in questions %}
+                <div class="card question-card mb-4" id="question-{{ question.id }}">
+                    <div class="card-header">
+                        <h5>Savol {{ forloop.counter }} / {{ questions|length }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="lead">{{ question.question_text }}</p>
+
+                        {% if question.audio_url %}
+                        <audio controls class="w-100 mb-3">
+                            <source src="{{ question.audio_url }}" type="audio/mpeg">
+                        </audio>
+                        {% endif %}
+
+                        {% if question.type == 'multiple_choice' %}
+                        <div class="options">
+                            {% for key, value in question.options.items %}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="question_{{ question.id }}" 
+                                       id="q{{ question.id }}_{{ key }}" value="{{ key }}" onchange="markAnswered({{ question.id }})">
+                                <label class="form-check-label" for="q{{ question.id }}_{{ key }}">
+                                    <strong>{{ key }}.</strong> {{ value }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% elif question.type == 'writing' %}
+                        <textarea class="form-control" name="question_{{ question.id }}" rows="10" 
+                                  placeholder="Javobingizni yozing..." onchange="markAnswered({{ question.id }})"></textarea>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="card">
+                    <div class="card-body text-center">
+                        <button type="button" class="btn btn-success btn-lg" onclick="submitExam()">
+                            <i class="bi bi-check-circle"></i> Imtihonni yakunlash
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card question-nav">
+                <div class="card-header">
+                    <h6 class="mb-0">Savollar</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap">
+                        {% for question in questions %}
+                        <button type="button" class="btn btn-outline-primary question-nav-btn" 
+                                id="nav-{{ question.id }}" onclick="scrollToQuestion({{ question.id }})">
+                            {{ forloop.counter }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <hr>
+                    <small class="text-muted">
+                        <span class="badge bg-success"></span> Javob berilgan<br>
+                        <span class="badge bg-outline-primary"></span> Javob berilmagan
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let duration = {{ duration_seconds }};
+let timeLeft = duration;
+let tabSwitches = 0;
+let startedAt = new Date().toISOString();
+document.getElementById('startedAt').value = startedAt;
+
+// Timer
+const timerInterval = setInterval(() => {
+    timeLeft--;
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    document.getElementById('timer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    const progress = (timeLeft / duration) * 100;
+    document.getElementById('timeProgress').style.width = progress + '%';
+    
+    if (timeLeft <= 300) {
+        document.getElementById('timer').classList.add('warning');
+    }
+    
+    if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        submitExam();
+    }
+}, 1000);
+
+// Track tab switches
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        tabSwitches++;
+        document.getElementById('tabSwitches').value = tabSwitches;
+        alert('Ogohlantirish: Tab almashtirish kuzatilmoqda!');
+    }
+});
+
+// Disable copy-paste
+document.addEventListener('copy', (e) => e.preventDefault());
+document.addEventListener('paste', (e) => e.preventDefault());
+
+function markAnswered(questionId) {
+    document.getElementById('nav-' + questionId).classList.add('answered');
+}
+
+function scrollToQuestion(questionId) {
+    document.getElementById('question-' + questionId).scrollIntoView({ behavior: 'smooth' });
+}
+
+function submitExam() {
+    if (!confirm('Imtihonni yakunlashga ishonchingiz komilmi?')) return;
+    
+    const formData = new FormData(document.getElementById('examForm'));
+    const answers = {};
+    
+    {% for question in questions %}
+    const q{{ question.id }} = formData.get('question_{{ question.id }}');
+    if (q{{ question.id }}) answers['{{ question.id }}'] = q{{ question.id }};
+    {% endfor %}
+    
+    const data = {
+        student_id: {{ student.id }},
+        exam_link_token: '{{ exam_link.unique_token }}',
+        answers: answers,
+        time_taken: duration - timeLeft,
+        tab_switches: tabSwitches,
+        started_at: startedAt
+    };
+    
+    fetch('{% url "submit_exam" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/result/' + data.result_id + '/';
+        } else {
+            alert('Xatolik: ' + data.error);
+        }
+    });
+}
+</script>
+{% endblock %}

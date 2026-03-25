@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ title }}</h4>
+                    <small class="text-muted">{{ exam.title }}</small>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Section nomi *</label>
+                            {{ form.title }}
+                            <small class="text-muted">Masalan: "Reading Section 1" yoki "Listening Part 2"</small>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Module *</label>
+                                {{ form.module }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tartib</label>
+                                {{ form.order }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Reading passage matni</label>
+                            {{ form.passage_text }}
+                            <small class="text-muted">Reading module uchun</small>
+                        </div>
+
+                        <div class="card mb-3 bg-light">
+                            <div class="card-body">
+                                <h6><i class="bi bi-volume-up"></i> Listening uchun audio</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Audio fayl</label>
+                                    <input type="file" name="audio_file" class="form-control" accept="audio/*">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">yoki Audio URL</label>
+                                    {{ form.audio_url }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Rasm (ixtiyoriy)</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
+                        </div>
+
+                        <div class="form-check mb-3">
+                            {{ form.is_active }}
+                            <label class="form-check-label">Faol</label>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Bekor qilish
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Saqlash
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

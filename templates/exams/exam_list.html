@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Imtihonlar - IELTS Mock Exam{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="h3"><i class="bi bi-file-earmark-text"></i> Imtihonlar</h1>
+            <a href="{% url 'exam_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Yangi imtihon
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for exam in exams %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title">{{ exam.title }}</h5>
+                        {% if exam.is_active %}
+                        <span class="badge bg-success">Faol</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Nofaol</span>
+                        {% endif %}
+                    </div>
+                    <p class="card-text text-muted">{{ exam.description|truncatewords:20 }}</p>
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="bi bi-clock"></i> {{ exam.duration }} daqiqa<br>
+                            <i class="bi bi-question-circle"></i> {{ exam.questions.count }} savol<br>
+                            <i class="bi bi-calendar"></i> {{ exam.created_at|date:"d.m.Y" }}
+                        </small>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-eye"></i> Ko'rish
+                    </a>
+                    <a href="{% url 'exam_edit' exam.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Tahrirlash
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> Hozircha imtihonlar yo'q. Yangi imtihon yarating!
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

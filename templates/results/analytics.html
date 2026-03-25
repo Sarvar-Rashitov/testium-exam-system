@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Statistika - IELTS Mock Exam{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3"><i class="bi bi-bar-chart"></i> Statistika va Tahlil</h1>
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Imtihon tanlang</label>
+                    <select name="exam_id" class="form-select" onchange="this.form.submit()">
+                        <option value="">Barcha imtihonlar</option>
+                        {% for exam in exams %}
+                        <option value="{{ exam.id }}" {% if selected_exam_id == exam.id|stringformat:"s" %}selected{% endif %}>
+                            {{ exam.title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="text-white-50">Jami talabalar</h6>
+                    <h2>{{ analytics.total_students|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="text-white-50">Jami urinishlar</h6>
+                    <h2>{{ analytics.total_attempts|default:0 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="text-white-50">O'rtacha ball</h6>
+                    <h2>{{ analytics.avg_percentage|default:0|floatformat:1 }}%</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h6 class="text-white-50">O'rtacha vaqt</h6>
+                    <h2>{{ analytics.avg_time_taken|default:0|floatformat:0|add:"0"|floatformat:0|divisibleby:60 }} daq</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Score Distribution -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Ball taqsimoti</h5>
+                </div>
+                <div class="card-body">
+                    {% for range in score_distribution %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>{{ range.range }}</span>
+                            <span class="badge bg-primary">{{ range.count }}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: {% widthratio range.count analytics.total_attempts 100 %}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Students -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-trophy"></i> Eng yaxshi natijalar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for result in top_students %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ result.student.full_name }}</h6>
+                                    <small class="text-muted">{{ result.exam.title }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success">{{ result.percentage|floatformat:1 }}%</span>
+                                    <br>
+                                    <small class="text-muted">{{ result.completed_at|date:"d.m.Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted text-center py-4">Natijalar yo'q</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}{{ exam.title }} - Ro'yxatdan o'tish{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-clipboard-check text-primary" style="font-size: 3rem;"></i>
+                        <h2 class="mt-3">{{ exam.title }}</h2>
+                        <p class="text-muted">{{ exam.description }}</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle"></i> Imtihon haqida:</h6>
+                        <ul class="mb-0">
+                            <li>Davomiyligi: <strong>{{ exam.duration }} daqiqa</strong></li>
+                            <li>Savollar soni: <strong>{{ exam.questions.count }}</strong></li>
+                            <li>Imtihon boshlanganidan keyin to'xtatib bo'lmaydi</li>
+                        </ul>
+                    </div>
+
+                    <h5 class="mb-3">Ma'lumotlaringizni kiriting:</h5>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Ism *</label>
+                            {{ form.first_name }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Familiya *</label>
+                            {{ form.last_name }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Telefon raqam *</label>
+                            {{ form.phone }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Telegram username</label>
+                            {{ form.telegram_username }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            {{ form.email }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="bi bi-play-circle"></i> Imtihonni boshlash
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
