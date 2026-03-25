@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - {{ exam.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'exam_list' %}">Imtihonlar</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'exam_detail' exam.pk %}">{{ exam.title }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'question_group_detail' group.pk %}">{{ group.title }}</a></li>
+            <li class="breadcrumb-item active">Savol qo'shish</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ title }}</h4>
+                    <small class="text-muted">
+                        {{ section.title }} &rarr; {{ group.title }} 
+                        <span class="badge bg-info">{{ question_type_display }}</span>
+                    </small>
+                </div>
+                <div class="card-body">
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>Xatoliklar:</strong>
+                        <ul class="mb-0">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                            <li>{{ field }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in field.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'question_group_detail' group.pk %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Bekor qilish
+                            </a>
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Saqlash
+                                </button>
+                                <button type="submit" name="save_and_add" class="btn btn-success">
+                                    <i class="bi bi-plus-circle"></i> Saqlash va yana qo'shish
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

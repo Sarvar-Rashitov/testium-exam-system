@@ -15,6 +15,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 
 # Application definition
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -114,3 +115,95 @@ AUTH_USER_MODEL = 'organizations.Organization'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+# Jazzmin Admin Theme
+JAZZMIN_SETTINGS = {
+    'site_title': 'IELTS Admin',
+    'site_header': 'IELTS Exam System',
+    'site_brand': 'IELTS Platform',
+    'site_logo': None,
+    'login_logo': None,
+    'login_logo_dark': None,
+    'site_logo_classes': 'img-circle',
+    'site_icon': None,
+    'welcome_sign': 'IELTS Exam System - Admin Panel',
+    'copyright': 'IELTS Exam System',
+    'search_model': ['organizations.Organization', 'exams.Exam'],
+    'user_avatar': None,
+
+    # Top Menu
+    'topmenu_links': [
+        {'name': 'Bosh sahifa', 'url': 'admin:index', 'permissions': ['auth.view_user']},
+        {'name': 'Sayt', 'url': '/', 'new_window': True},
+        {'model': 'organizations.Organization'},
+    ],
+
+    # Side Menu
+    'show_sidebar': True,
+    'navigation_expanded': True,
+    'hide_apps': [],
+    'hide_models': [],
+    'order_with_respect_to': [
+        'organizations',
+        'exams',
+        'students',
+        'results',
+    ],
+
+    # Icons
+    'icons': {
+        'organizations.Organization': 'fas fa-building',
+        'exams.Exam': 'fas fa-file-alt',
+        'exams.Section': 'fas fa-layer-group',
+        'exams.QuestionGroup': 'fas fa-object-group',
+        'exams.ExamLink': 'fas fa-link',
+        'students.Student': 'fas fa-user-graduate',
+        'results.ExamResult': 'fas fa-chart-bar',
+    },
+    'default_icon_parents': 'fas fa-folder',
+    'default_icon_children': 'fas fa-circle',
+
+    # UI Tweaks
+    'related_modal_active': True,
+    'custom_css': None,
+    'custom_js': None,
+    'use_google_fonts_cdn': True,
+    'show_ui_builder': False,
+    'changeform_format': 'horizontal_tabs',
+    'changeform_format_overrides': {
+        'organizations.Organization': 'collapsible',
+        'exams.Exam': 'horizontal_tabs',
+    },
+}
+
+JAZZMIN_UI_TWEAKS = {
+    'navbar_small_text': False,
+    'footer_small_text': False,
+    'body_small_text': False,
+    'brand_small_text': False,
+    'brand_colour': False,
+    'accent': 'accent-primary',
+    'navbar': 'navbar-dark',
+    'no_navbar_border': False,
+    'navbar_fixed': True,
+    'layout_boxed': False,
+    'footer_fixed': False,
+    'sidebar_fixed': True,
+    'sidebar': 'sidebar-dark-primary',
+    'sidebar_nav_small_text': False,
+    'sidebar_disable_expand': False,
+    'sidebar_nav_child_indent': False,
+    'sidebar_nav_compact_style': False,
+    'sidebar_nav_legacy_style': False,
+    'sidebar_nav_flat_style': False,
+    'theme': 'darkly',
+    'dark_mode_theme': 'darkly',
+    'button_classes': {
+        'primary': 'btn-primary',
+        'secondary': 'btn-secondary',
+        'info': 'btn-info',
+        'warning': 'btn-warning',
+        'danger': 'btn-danger',
+        'success': 'btn-success',
+    },
+}

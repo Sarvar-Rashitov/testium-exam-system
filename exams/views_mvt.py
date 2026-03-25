@@ -3,8 +3,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
-from .models import Exam, Section, QuestionGroup, ExamLink
-from .forms import ExamForm, SectionForm, QuestionGroupForm, ExamLinkForm
+from .models import (
+    Exam, Section, QuestionGroup, ExamLink,
+    MultipleChoiceSingleQuestion, MultipleChoiceMultipleQuestion,
+    TrueFalseNotGivenQuestion, YesNoNotGivenQuestion,
+    SentenceCompletionQuestion, ShortAnswerQuestion,
+    DiagramLabelingQuestion, SummaryCompletionQuestion,
+)
+from .forms import (
+    ExamForm, SectionForm, QuestionGroupForm, ExamLinkForm,
+    MultipleChoiceSingleForm, MultipleChoiceMultipleForm,
+    TrueFalseNotGivenForm, YesNoNotGivenForm,
+    SentenceCompletionForm, ShortAnswerForm,
+    DiagramLabelingForm, SummaryCompletionForm,
+)
 from students.forms import StudentRegistrationForm
 from students.models import Student
 
@@ -207,20 +219,294 @@ def question_create_view(request, group_pk):
         return redirect('question_group_detail', pk=group_pk)
 
 
-# Placeholder views for specific question types - will be implemented with forms
+# ==================== QUESTION TYPE VIEWS ====================
+
+def _get_question_context(group):
+    """Helper to build common context for question forms"""
+    return {
+        'group': group,
+        'section': group.section,
+        'exam': group.section.exam,
+    }
+
+
+def _get_next_question_number(group):
+    """Helper to auto-calculate the next question number for a group"""
+    question_type_map = {
+        'multiple_choice_single': 'multiplechoicesinglequestion_set',
+        'multiple_choice_multiple': 'multiplechoicemultiplequestion_set',
+        'true_false_ng': 'truefalsenotgivenquestion_set',
+        'yes_no_ng': 'yesnonotgivenquestion_set',
+        'sentence_completion': 'sentencecompletionquestion_set',
+        'short_answer': 'shortanswerquestion_set',
+        'diagram_labeling': 'diagramlabelingquestion_set',
+        'summary_completion': 'summarycompletionquestion_set',
+    }
+    related_name = question_type_map.get(group.question_type)
+    if related_name:
+        qs = getattr(group, related_name).all()
+        if qs.exists():
+            return qs.order_by('-question_number').first().question_number + 1
+    return 1
+
+
 @login_required
 def question_mcq_single_create_view(request, group_pk):
     """Create MCQ single answer question"""
-    group = get_object_or_404(QuestionGroup, pk=group_pk)
-    messages.info(request, 'MCQ Single forma hali ishlab chiqilmoqda')
-    return redirect('question_group_detail', pk=group_pk)
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = MultipleChoiceSingleForm(request.POST, request.FILES)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_mcq_single_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = MultipleChoiceSingleForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Multiple Choice (Single Answer) savol qo\'shish',
+        'question_type_display': 'Multiple Choice (Single Answer)',
+    })
+    return render(request, 'exams/question_type_form.html', context)
 
 
 @login_required
-def question_delete_view(request, pk):
-    """Delete question - placeholder"""
-    messages.info(request, 'Savol o\'chirish funksiyasi hali ishlab chiqilmoqda')
-    return redirect('exam_list')
+def question_mcq_multiple_create_view(request, group_pk):
+    """Create MCQ multiple answers question"""
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = MultipleChoiceMultipleForm(request.POST, request.FILES)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_mcq_multiple_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = MultipleChoiceMultipleForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Multiple Choice (Multiple Answers) savol qo\'shish',
+        'question_type_display': 'Multiple Choice (Multiple Answers)',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_tfng_create_view(request, group_pk):
+    """Create True/False/Not Given question"""
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = TrueFalseNotGivenForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_tfng_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = TrueFalseNotGivenForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'True/False/Not Given savol qo\'shish',
+        'question_type_display': 'True / False / Not Given',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_ynng_create_view(request, group_pk):
+    """Create Yes/No/Not Given question"""
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = YesNoNotGivenForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_ynng_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = YesNoNotGivenForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Yes/No/Not Given savol qo\'shish',
+        'question_type_display': 'Yes / No / Not Given',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_sentence_create_view(request, group_pk):
+    """Create Sentence Completion question"""
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = SentenceCompletionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_sentence_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = SentenceCompletionForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Sentence Completion savol qo\'shish',
+        'question_type_display': 'Sentence Completion',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_short_answer_create_view(request, group_pk):
+    """Create Short Answer question"""
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = ShortAnswerForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_short_answer_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = ShortAnswerForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Short Answer savol qo\'shish',
+        'question_type_display': 'Short Answer',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_diagram_create_view(request, group_pk):
+    """Create Diagram Labeling question"""
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = DiagramLabelingForm(request.POST, request.FILES)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_diagram_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = DiagramLabelingForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Diagram Labeling savol qo\'shish',
+        'question_type_display': 'Diagram Labeling',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_summary_create_view(request, group_pk):
+    """Create Summary Completion question"""
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = SummaryCompletionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_summary_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = SummaryCompletionForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Summary Completion savol qo\'shish',
+        'question_type_display': 'Summary Completion',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_delete_view(request, group_pk, pk):
+    """Delete question from any question type"""
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    # Find and delete the question from the correct model
+    question = None
+    model_map = {
+        'multiple_choice_single': MultipleChoiceSingleQuestion,
+        'multiple_choice_multiple': MultipleChoiceMultipleQuestion,
+        'true_false_ng': TrueFalseNotGivenQuestion,
+        'yes_no_ng': YesNoNotGivenQuestion,
+        'sentence_completion': SentenceCompletionQuestion,
+        'short_answer': ShortAnswerQuestion,
+        'diagram_labeling': DiagramLabelingQuestion,
+        'summary_completion': SummaryCompletionQuestion,
+    }
+    
+    model_class = model_map.get(group.question_type)
+    if model_class:
+        question = get_object_or_404(model_class, pk=pk, question_group=group)
+    
+    if request.method == 'POST' and question:
+        q_num = question.question_number
+        question.delete()
+        messages.success(request, f'Savol #{q_num} o\'chirildi!')
+        return redirect('question_group_detail', pk=group.pk)
+    
+    return render(request, 'exams/question_confirm_delete.html', {
+        'question': question,
+        'group': group,
+        'exam': group.section.exam,
+    })
 
 
 @login_required

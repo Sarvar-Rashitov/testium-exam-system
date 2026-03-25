@@ -88,7 +88,7 @@
                                 </td>
                                 <td>{{ q.points }}</td>
                                 <td>
-                                    <a href="{% url 'question_delete' q.pk %}" class="btn btn-sm btn-danger">
+                                    <a href="{% url 'question_delete' group.pk q.pk %}" class="btn btn-sm btn-danger">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
