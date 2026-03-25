@@ -2,12 +2,19 @@
 {% block title %}{{ exam.title }} - Imtihon{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container-fluid mt-3">
     <!-- Timer -->
-    <div class="card mb-4 border-danger">
-        <div class="card-body text-center">
-            <h4>Qolgan vaqt: <span id="timer" class="timer">{{ exam.duration }}:00</span></h4>
-            <div class="progress" style="height: 10px;">
+    <div class="card mb-3 border-danger sticky-top" style="z-index: 100;">
+        <div class="card-body py-2 text-center">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><strong>{{ exam.title }}</strong> | {{ student.full_name }}</span>
+                <h4 class="mb-0">
+                    <i class="bi bi-clock"></i> 
+                    <span id="timer" class="timer">{{ exam.duration }}:00</span>
+                </h4>
+                <span class="badge bg-info">{{ total_questions }} savol</span>
+            </div>
+            <div class="progress mt-2" style="height: 5px;">
                 <div id="timeProgress" class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
             </div>
         </div>
@@ -22,41 +29,191 @@
                 <input type="hidden" id="startedAt" value="">
                 <input type="hidden" id="tabSwitches" value="0">
 
-                {% for question in questions %}
-                <div class="card question-card mb-4" id="question-{{ question.id }}">
-                    <div class="card-header">
-                        <h5>Savol {{ forloop.counter }} / {{ questions|length }}</h5>
+                {% for section in sections_data %}
+                <!-- Section: {{ section.title }} -->
+                <div class="card mb-4 border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-layers"></i> {{ section.title }}
+                            <span class="badge bg-light text-primary ms-2">{{ section.module_display }}</span>
+                        </h5>
                     </div>
                     <div class="card-body">
-                        <p class="lead">{{ question.question_text }}</p>
-
-                        {% if question.audio_url %}
-                        <audio controls class="w-100 mb-3">
-                            <source src="{{ question.audio_url }}" type="audio/mpeg">
-                        </audio>
-                        {% endif %}
-
-                        {% if question.type == 'multiple_choice' %}
-                        <div class="options">
-                            {% for key, value in question.options.items %}
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="question_{{ question.id }}" 
-                                       id="q{{ question.id }}_{{ key }}" value="{{ key }}" onchange="markAnswered({{ question.id }})">
-                                <label class="form-check-label" for="q{{ question.id }}_{{ key }}">
-                                    <strong>{{ key }}.</strong> {{ value }}
-                                </label>
+                        {% if section.passage_text %}
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="bi bi-book"></i> Reading Passage</h6>
+                                </div>
+                                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                    {{ section.passage_text|linebreaks }}
+                                </div>
                             </div>
-                            {% endfor %}
                         </div>
-                        {% elif question.type == 'writing' %}
-                        <textarea class="form-control" name="question_{{ question.id }}" rows="10" 
-                                  placeholder="Javobingizni yozing..." onchange="markAnswered({{ question.id }})"></textarea>
                         {% endif %}
+
+                        {% if section.audio_url %}
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-volume-up"></i> Audio</h6>
+                                    <audio controls class="w-100">
+                                        <source src="{{ section.audio_url }}" type="audio/mpeg">
+                                        Brauzeringiz audio'ni qo'llab-quvvatlamaydi.
+                                    </audio>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if section.audio_file %}
+                        <div class="mb-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="bi bi-volume-up"></i> Audio</h6>
+                                    <audio controls class="w-100">
+                                        <source src="{{ section.audio_file.url }}" type="audio/mpeg">
+                                    </audio>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if section.image %}
+                        <div class="mb-4 text-center">
+                            <img src="{{ section.image.url }}" alt="Section image" class="img-fluid" style="max-width: 600px;">
+                        </div>
+                        {% endif %}
+
+                        {% for group in section.groups %}
+                        <!-- Question Group: {{ group.title }} -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">{{ group.title }}</h6>
+                                <small class="text-muted">{{ group.instructions }}</small>
+                            </div>
+
+                            {% if group.passage_text %}
+                            <div class="card-body border-bottom bg-light">
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    {{ group.passage_text|linebreaks }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if group.image %}
+                            <div class="card-body border-bottom text-center">
+                                <img src="{{ group.image.url }}" alt="Group image" class="img-fluid" style="max-width: 500px;">
+                            </div>
+                            {% endif %}
+
+                            <div class="card-body">
+                                {% for question in group.questions %}
+                                <div class="mb-4 p-3 border rounded" id="question-{{ question.counter }}">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="mb-0">
+                                            <span class="badge bg-primary me-2">{{ question.counter }}</span>
+                                            {{ question.text }}
+                                        </h6>
+                                        <span class="badge bg-secondary">{{ question.points }} ball</span>
+                                    </div>
+
+                                    {% if question.diagram_image %}
+                                    <div class="mb-3 text-center">
+                                        <img src="{{ question.diagram_image }}" alt="Diagram" class="img-fluid" style="max-width: 400px;">
+                                    </div>
+                                    {% endif %}
+
+                                    {% if question.question_type == 'multiple_choice_single' %}
+                                        <!-- MCQ Single -->
+                                        {% for key, value in question.options.items %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="q_{{ question.question_type }}_{{ question.id }}" 
+                                                   id="q{{ question.counter }}_{{ key }}" 
+                                                   value="{{ key }}" 
+                                                   onchange="markAnswered({{ question.counter }})">
+                                            <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
+                                                <strong>{{ key }}.</strong> {{ value }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+
+                                    {% elif question.question_type == 'multiple_choice_multiple' %}
+                                        <!-- MCQ Multiple -->
+                                        <small class="text-muted mb-2 d-block">Bir nechtasini tanlashingiz mumkin</small>
+                                        {% for key, value in question.options.items %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="q_{{ question.question_type }}_{{ question.id }}" 
+                                                   id="q{{ question.counter }}_{{ key }}" 
+                                                   value="{{ key }}" 
+                                                   onchange="markAnswered({{ question.counter }})">
+                                            <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
+                                                <strong>{{ key }}.</strong> {{ value }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+
+                                    {% elif question.question_type == 'true_false_ng' %}
+                                        <!-- True/False/Not Given -->
+                                        {% for key, value in question.options.items %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="q_{{ question.question_type }}_{{ question.id }}" 
+                                                   id="q{{ question.counter }}_{{ key }}" 
+                                                   value="{{ key }}" 
+                                                   onchange="markAnswered({{ question.counter }})">
+                                            <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
+                                                {{ value }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+
+                                    {% elif question.question_type == 'yes_no_ng' %}
+                                        <!-- Yes/No/Not Given -->
+                                        {% for key, value in question.options.items %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="q_{{ question.question_type }}_{{ question.id }}" 
+                                                   id="q{{ question.counter }}_{{ key }}" 
+                                                   value="{{ key }}" 
+                                                   onchange="markAnswered({{ question.counter }})">
+                                            <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
+                                                {{ value }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+
+                                    {% elif question.question_type == 'sentence_completion' or question.question_type == 'short_answer' or question.question_type == 'summary_completion' or question.question_type == 'diagram_labeling' %}
+                                        <!-- Text Input -->
+                                        {% if question.max_words %}
+                                        <small class="text-muted mb-2 d-block">
+                                            Maksimum {{ question.max_words }} so'z
+                                        </small>
+                                        {% endif %}
+                                        <input type="text" class="form-control" 
+                                               name="q_{{ question.question_type }}_{{ question.id }}" 
+                                               placeholder="Javobingizni yozing..."
+                                               onchange="markAnswered({{ question.counter }})">
+
+                                    {% endif %}
+                                </div>
+                                {% empty %}
+                                <p class="text-muted">Bu guruhda savollar yo'q.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
+                </div>
+                {% empty %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Bu imtihonda hali sectionlar va savollar qo'shilmagan.
                 </div>
                 {% endfor %}
 
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-body text-center">
                         <button type="button" class="btn btn-success btn-lg" onclick="submitExam()">
                             <i class="bi bi-check-circle"></i> Imtihonni yakunlash
@@ -67,29 +224,46 @@
         </div>
 
         <div class="col-md-3">
-            <div class="card question-nav">
+            <div class="card question-nav sticky-top" style="top: 80px;">
                 <div class="card-header">
-                    <h6 class="mb-0">Savollar</h6>
+                    <h6 class="mb-0"><i class="bi bi-grid-3x3-gap"></i> Savollar navigatsiyasi</h6>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex flex-wrap">
-                        {% for question in questions %}
-                        <button type="button" class="btn btn-outline-primary question-nav-btn" 
-                                id="nav-{{ question.id }}" onclick="scrollToQuestion({{ question.id }})">
-                            {{ forloop.counter }}
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for question in all_questions %}
+                        <button type="button" class="btn btn-outline-primary btn-sm question-nav-btn" 
+                                id="nav-{{ question.counter }}" onclick="scrollToQuestion({{ question.counter }})"
+                                style="width: 40px; height: 40px;">
+                            {{ question.counter }}
                         </button>
                         {% endfor %}
                     </div>
                     <hr>
                     <small class="text-muted">
-                        <span class="badge bg-success"></span> Javob berilgan<br>
-                        <span class="badge bg-outline-primary"></span> Javob berilmagan
+                        <span class="badge bg-success">&nbsp;</span> Javob berilgan<br>
+                        <span class="badge bg-outline-primary border">&nbsp;</span> Javob berilmagan
                     </small>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.question-nav-btn.answered {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: white !important;
+}
+.timer.warning {
+    color: #dc3545;
+    font-weight: bold;
+    animation: blink 1s infinite;
+}
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+</style>
 
 <script>
 let duration = {{ duration_seconds }};
@@ -132,24 +306,38 @@ document.addEventListener('visibilitychange', () => {
 document.addEventListener('copy', (e) => e.preventDefault());
 document.addEventListener('paste', (e) => e.preventDefault());
 
-function markAnswered(questionId) {
-    document.getElementById('nav-' + questionId).classList.add('answered');
+function markAnswered(counter) {
+    const navBtn = document.getElementById('nav-' + counter);
+    if (navBtn) {
+        navBtn.classList.add('answered');
+    }
 }
 
-function scrollToQuestion(questionId) {
-    document.getElementById('question-' + questionId).scrollIntoView({ behavior: 'smooth' });
+function scrollToQuestion(counter) {
+    const el = document.getElementById('question-' + counter);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
 function submitExam() {
     if (!confirm('Imtihonni yakunlashga ishonchingiz komilmi?')) return;
     
-    const formData = new FormData(document.getElementById('examForm'));
+    const form = document.getElementById('examForm');
+    const formData = new FormData(form);
     const answers = {};
     
-    {% for question in questions %}
-    const q{{ question.id }} = formData.get('question_{{ question.id }}');
-    if (q{{ question.id }}) answers['{{ question.id }}'] = q{{ question.id }};
-    {% endfor %}
+    // Collect all answers
+    for (const [key, value] of formData.entries()) {
+        if (key.startsWith('q_')) {
+            if (answers[key]) {
+                // For checkboxes (multiple choice multiple)
+                answers[key] = answers[key] + ',' + value;
+            } else {
+                answers[key] = value;
+            }
+        }
+    }
     
     const data = {
         student_id: {{ student.id }},
@@ -172,6 +360,9 @@ function submitExam() {
         } else {
             alert('Xatolik: ' + data.error);
         }
+    })
+    .catch(err => {
+        alert('Xatolik yuz berdi: ' + err.message);
     });
 }
 </script>

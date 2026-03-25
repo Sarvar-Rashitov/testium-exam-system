@@ -562,9 +562,112 @@ def exam_take_view(request, token, student_id):
     exam = exam_link.exam
     sections = exam.sections.all().order_by('order')
     
+    # Build structured data for sections with their questions
+    sections_data = []
+    all_questions = []
+    question_counter = 0
+    
+    for section in sections:
+        section_info = {
+            'id': section.id,
+            'title': section.title,
+            'module': section.module,
+            'module_display': section.get_module_display(),
+            'passage_text': section.passage_text,
+            'audio_file': section.audio_file if section.audio_file else None,
+            'audio_url': section.audio_url,
+            'image': section.image if section.image else None,
+            'groups': [],
+        }
+        
+        for group in section.question_groups.all().order_by('order'):
+            group_info = {
+                'id': group.id,
+                'title': group.title,
+                'instructions': group.instructions,
+                'question_type': group.question_type,
+                'question_type_display': group.get_question_type_display(),
+                'passage_text': group.passage_text,
+                'image': group.image if group.image else None,
+                'questions': [],
+            }
+            
+            # Get questions based on type
+            raw_questions = []
+            if group.question_type == 'multiple_choice_single':
+                raw_questions = group.multiplechoicesinglequestion_set.all().order_by('question_number')
+            elif group.question_type == 'multiple_choice_multiple':
+                raw_questions = group.multiplechoicemultiplequestion_set.all().order_by('question_number')
+            elif group.question_type == 'true_false_ng':
+                raw_questions = group.truefalsenotgivenquestion_set.all().order_by('question_number')
+            elif group.question_type == 'yes_no_ng':
+                raw_questions = group.yesnonotgivenquestion_set.all().order_by('question_number')
+            elif group.question_type == 'sentence_completion':
+                raw_questions = group.sentencecompletionquestion_set.all().order_by('question_number')
+            elif group.question_type == 'short_answer':
+                raw_questions = group.shortanswerquestion_set.all().order_by('question_number')
+            elif group.question_type == 'diagram_labeling':
+                raw_questions = group.diagramlabelingquestion_set.all().order_by('question_number')
+            elif group.question_type == 'summary_completion':
+                raw_questions = group.summarycompletionquestion_set.all().order_by('question_number')
+            
+            for q in raw_questions:
+                question_counter += 1
+                q_data = {
+                    'id': q.id,
+                    'counter': question_counter,
+                    'question_number': q.question_number,
+                    'question_type': group.question_type,
+                    'points': q.points,
+                    'group_id': group.id,
+                }
+                
+                # Normalize question text and options based on type
+                if group.question_type in ('multiple_choice_single', 'multiple_choice_multiple'):
+                    q_data['text'] = q.question_text
+                    q_data['options'] = {
+                        'A': q.option_a,
+                        'B': q.option_b,
+                        'C': q.option_c,
+                        'D': q.option_d,
+                    }
+                    if group.question_type == 'multiple_choice_multiple':
+                        if hasattr(q, 'option_e') and q.option_e:
+                            q_data['options']['E'] = q.option_e
+                        if hasattr(q, 'option_f') and q.option_f:
+                            q_data['options']['F'] = q.option_f
+                elif group.question_type in ('true_false_ng', 'yes_no_ng'):
+                    q_data['text'] = q.statement
+                    if group.question_type == 'true_false_ng':
+                        q_data['options'] = {'TRUE': 'True', 'FALSE': 'False', 'NOT GIVEN': 'Not Given'}
+                    else:
+                        q_data['options'] = {'YES': 'Yes', 'NO': 'No', 'NOT GIVEN': 'Not Given'}
+                elif group.question_type == 'sentence_completion':
+                    q_data['text'] = q.sentence_text
+                    q_data['max_words'] = q.max_words
+                elif group.question_type == 'short_answer':
+                    q_data['text'] = q.question_text
+                    q_data['max_words'] = q.max_words
+                elif group.question_type == 'summary_completion':
+                    q_data['text'] = q.summary_text
+                    q_data['max_words'] = q.max_words
+                elif group.question_type == 'diagram_labeling':
+                    q_data['text'] = f"Label position: {q.label_position}"
+                    if q.diagram_image:
+                        q_data['diagram_image'] = q.diagram_image.url
+                
+                group_info['questions'].append(q_data)
+                all_questions.append(q_data)
+            
+            section_info['groups'].append(group_info)
+        
+        sections_data.append(section_info)
+    
     context = {
         'exam': exam,
-        'sections': sections,
+        'sections_data': sections_data,
+        'all_questions': all_questions,
+        'total_questions': question_counter,
         'student': student,
         'exam_link': exam_link,
         'duration_seconds': exam.duration * 60
