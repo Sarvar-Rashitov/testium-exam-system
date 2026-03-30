@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% block title %}O'qituvchilar - Testium{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+    }
+
+    .page-header {
+        background: white;
+        padding: 32px;
+        border-radius: 20px;
+        margin-bottom: 32px;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-primary {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .teachers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+    }
+
+    .teacher-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .teacher-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .teacher-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0 auto 16px;
+    }
+
+    .teacher-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .teacher-subject {
+        font-size: 14px;
+        color: #6b7280;
+        text-align: center;
+        margin-bottom: 16px;
+    }
+
+    .teacher-stats {
+        display: flex;
+        justify-content: space-around;
+        padding: 16px 0;
+        border-top: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
+        margin-bottom: 16px;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #4F46E5;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
+    .teacher-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-edit, .btn-delete {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-edit {
+        background: #eff6ff;
+        color: #4F46E5;
+    }
+
+    .btn-edit:hover {
+        background: #dbeafe;
+    }
+
+    .btn-delete {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .btn-delete:hover {
+        background: #fee2e2;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .status-badge.active {
+        background: #d1fae5;
+        color: #10b981;
+    }
+
+    .status-badge.inactive {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 24px;
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 24px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        color: #9ca3af;
+    }
+
+    .empty-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 12px;
+    }
+
+    .empty-text {
+        font-size: 16px;
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-person-badge"></i>
+            O'qituvchilar
+        </h1>
+        <div style="display: flex; gap: 12px;">
+            <a href="{% url 'teacher_statistics' %}" class="btn-primary" style="background: linear-gradient(135deg, #10b981, #22c55e);">
+                <i class="bi bi-graph-up-arrow"></i>
+                Statistika
+            </a>
+            <a href="{% url 'teacher_create' %}" class="btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                Yangi o'qituvchi
+            </a>
+        </div>
+    </div>
+
+    {% if teachers %}
+    <div class="teachers-grid">
+        {% for teacher in teachers %}
+        <div class="teacher-card">
+            <div style="text-align: center;">
+                <span class="status-badge {% if teacher.is_active %}active{% else %}inactive{% endif %}">
+                    {% if teacher.is_active %}Faol{% else %}Nofaol{% endif %}
+                </span>
+            </div>
+            <div class="teacher-avatar">
+                {{ teacher.first_name|first|upper }}{{ teacher.last_name|first|upper }}
+            </div>
+            <h3 class="teacher-name">{{ teacher.full_name }}</h3>
+            <p class="teacher-subject">{{ teacher.subject|default:"Fan ko'rsatilmagan" }}</p>
+            
+            <div class="teacher-stats">
+                <div class="stat-item">
+                    <div class="stat-value">{{ teacher.student_count }}</div>
+                    <div class="stat-label">O'quvchilar</div>
+                </div>
+            </div>
+
+            <div class="teacher-actions">
+                <a href="{% url 'teacher_edit' teacher.pk %}" class="btn-edit">
+                    <i class="bi bi-pencil"></i>
+                    Tahrirlash
+                </a>
+                <a href="{% url 'teacher_delete' teacher.pk %}" class="btn-delete">
+                    <i class="bi bi-trash"></i>
+                    O'chirish
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-person-badge"></i>
+        </div>
+        <h2 class="empty-title">Hozircha o'qituvchilar yo'q</h2>
+        <p class="empty-text">Birinchi o'qituvchini qo'shing</p>
+        <a href="{% url 'teacher_create' %}" class="btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            Yangi o'qituvchi
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

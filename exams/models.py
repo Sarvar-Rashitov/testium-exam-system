@@ -337,6 +337,7 @@ class ExamLink(models.Model):
     is_active = models.BooleanField(default=True)
     max_uses = models.IntegerField(null=True, blank=True)
     use_count = models.IntegerField(default=0)
+    resume_password = models.CharField(max_length=50, blank=True, null=True, help_text='Parol imtihonni davom ettirish uchun')
     
     class Meta:
         db_table = 'exam_links'

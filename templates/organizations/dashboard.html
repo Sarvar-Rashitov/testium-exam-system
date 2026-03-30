@@ -1,151 +1,675 @@
 {% extends 'base.html' %}
-{% block title %}Bosh sahifa - IELTS Mock Exam{% endblock %}
+{% block title %}Dashboard - Testium{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    .dashboard-header {
+        background: white;
+        padding: 24px 32px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-title h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .header-title p {
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .icon-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: #f9fafb;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .icon-btn:hover {
+        background: #f3f4f6;
+    }
+
+    .icon-btn i {
+        font-size: 20px;
+        color: #6b7280;
+    }
+
+    .icon-btn .badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 8px;
+        height: 8px;
+        background: #ef4444;
+        border-radius: 50%;
+    }
+
+    .dashboard-content {
+        padding: 32px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card.blue::before { background: linear-gradient(90deg, #4F46E5, #6366F1); }
+    .stat-card.green::before { background: linear-gradient(90deg, #10b981, #22c55e); }
+    .stat-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .stat-card.orange::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .stat-card.blue .stat-icon { background: #eef2ff; color: #4F46E5; }
+    .stat-card.green .stat-icon { background: #d1fae5; color: #10b981; }
+    .stat-card.purple .stat-icon { background: #ede9fe; color: #8b5cf6; }
+    .stat-card.orange .stat-icon { background: #fef3c7; color: #f59e0b; }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 12px 24px;
+        border-radius: 50px;
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .action-btn.primary {
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .action-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .action-btn.outline {
+        background: white;
+        color: #4F46E5;
+        border: 2px solid #4F46E5;
+    }
+
+    .action-btn.outline:hover {
+        background: #4F46E5;
+        color: white;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-action {
+        font-size: 14px;
+        color: #4F46E5;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .card-action:hover {
+        color: #6366F1;
+    }
+
+    .list-item {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .list-item:hover {
+        background: #f9fafb;
+    }
+
+    .list-item-content h6 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .list-item-content p {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-badge.active {
+        background: #d1fae5;
+        color: #10b981;
+    }
+
+    .status-badge.inactive {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .score-badge {
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 700;
+        background: #eef2ff;
+        color: #4F46E5;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 16px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: #9ca3af;
+    }
+
+    .empty-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .empty-text {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 16px 20px;
+        }
+
+        .dashboard-content {
+            padding: 20px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .header-title h1 {
+            font-size: 22px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Chart.js default configuration
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#6b7280';
+
+    // Activity Chart (Last 7 days)
+    {% if activity_data %}
+    const activityCtx = document.getElementById('activityChart');
+    if (activityCtx) {
+        new Chart(activityCtx, {
+            type: 'line',
+            data: {
+                labels: [{% for item in activity_data %}'{{ item.date }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: 'Imtihonlar',
+                    data: [{% for item in activity_data %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: 'rgba(79, 70, 229, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+
+    // Score Distribution Doughnut Chart
+    {% if score_ranges %}
+    const scoreRangeCtx = document.getElementById('scoreRangeChart');
+    if (scoreRangeCtx) {
+        new Chart(scoreRangeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Past (0-50%)', "O'rta (50-75%)", 'Yaxshi (75-100%)'],
+                datasets: [{
+                    data: [{{ score_ranges.low }}, {{ score_ranges.medium }}, {{ score_ranges.high }}],
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(251, 191, 36, 0.8)',
+                        'rgba(34, 197, 94, 0.8)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+</script>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3">
-                <i class="bi bi-speedometer2"></i> Bosh sahifa
-            </h1>
-            <p class="text-muted">Xush kelibsiz, {{ user.organization_name }}!</p>
-        </div>
+<header class="dashboard-header">
+    <div class="header-title">
+        <h1>Xush kelibsiz, {{ user.organization_name }} 👋</h1>
+        <p>Bugungi natijalaringizni ko'ring</p>
     </div>
+    <div class="header-actions">
+        <button class="icon-btn">
+            <i class="bi bi-bell"></i>
+            <span class="badge"></span>
+        </button>
+    </div>
+</header>
 
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card stat-card dashboard-card bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 mb-2">Jami imtihonlar</h6>
-                            <h2 class="mb-0">{{ total_exams }}</h2>
-                        </div>
-                        <i class="bi bi-file-earmark-text stat-icon"></i>
-                    </div>
+<div class="dashboard-content">
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value">{{ total_exams }}</div>
+                    <div class="stat-label">Jami imtihonlar</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-file-earmark-text"></i>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card stat-card dashboard-card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 mb-2">Faol imtihonlar</h6>
-                            <h2 class="mb-0">{{ active_exams }}</h2>
-                        </div>
-                        <i class="bi bi-check-circle stat-icon"></i>
-                    </div>
+        <div class="stat-card green">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value">{{ active_exams }}</div>
+                    <div class="stat-label">Faol imtihonlar</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle"></i>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card stat-card dashboard-card bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 mb-2">Jami talabalar</h6>
-                            <h2 class="mb-0">{{ total_students }}</h2>
-                        </div>
-                        <i class="bi bi-people stat-icon"></i>
-                    </div>
+        <div class="stat-card purple">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value">{{ total_students }}</div>
+                    <div class="stat-label">Jami talabalar</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card stat-card dashboard-card bg-warning text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-white-50 mb-2">O'rtacha ball</h6>
-                            <h2 class="mb-0">{{ avg_score }}%</h2>
-                        </div>
-                        <i class="bi bi-graph-up stat-icon"></i>
-                    </div>
+        <div class="stat-card orange">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-value">{{ avg_score }}%</div>
+                    <div class="stat-label">O'rtacha ball</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-graph-up"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="quick-actions">
+        <a href="{% url 'exam_create' %}" class="action-btn primary">
+            <i class="bi bi-plus-circle"></i>
+            Yangi test
+        </a>
+        <a href="{% url 'analytics' %}" class="action-btn outline">
+            <i class="bi bi-bar-chart"></i>
+            Statistika
+        </a>
+    </div>
+
+    <div class="content-grid">
+        <!-- Recent Activity Chart -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-activity"></i>
+                    So'nggi 7 kun faolligi
+                </h3>
+            </div>
+            {% if activity_data %}
+            <div style="height: 250px; position: relative;">
+                <canvas id="activityChart"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-activity"></i>
+                </div>
+                <div class="empty-title">Faollik yo'q</div>
+                <div class="empty-text">So'nggi 7 kunda imtihon topshirilmagan</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Score Distribution Chart -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-pie-chart"></i>
+                    Ball taqsimoti
+                </h3>
+            </div>
+            {% if score_ranges %}
+            <div style="height: 250px; position: relative;">
+                <canvas id="scoreRangeChart"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-pie-chart"></i>
+                </div>
+                <div class="empty-title">Ma'lumot yo'q</div>
+                <div class="empty-text">Natijalar mavjud emas</div>
+            </div>
+            {% endif %}
+        </div>
+
         <!-- Recent Exams -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-file-earmark-text"></i> So'nggi imtihonlar
-                    </h5>
-                    <a href="{% url 'exam_create' %}" class="btn btn-sm btn-primary">
-                        <i class="bi bi-plus-circle"></i> Yangi
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if exams %}
-                    <div class="list-group list-group-flush">
-                        {% for exam in exams %}
-                        <a href="{% url 'exam_detail' exam.pk %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">{{ exam.title }}</h6>
-                                    <small class="text-muted">
-                                        <i class="bi bi-clock"></i> {{ exam.duration }} daqiqa
-                                        <i class="bi bi-question-circle ms-2"></i> {{ exam.questions.count }} savol
-                                    </small>
-                                </div>
-                                {% if exam.is_active %}
-                                <span class="badge bg-success">Faol</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Nofaol</span>
-                                {% endif %}
-                            </div>
-                        </a>
-                        {% endfor %}
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-file-earmark-text"></i>
+                    So'nggi imtihonlar
+                </h3>
+                <a href="{% url 'exam_list' %}" class="card-action">Barchasi →</a>
+            </div>
+            <div style="max-height: 400px; overflow-y: auto;">
+            {% if exams %}
+                {% for exam in exams %}
+                <a href="{% url 'exam_detail' exam.pk %}" class="list-item">
+                    <div class="list-item-content">
+                        <h6>{{ exam.title }}</h6>
+                        <p>
+                            <i class="bi bi-clock"></i> {{ exam.duration }} daqiqa
+                            <i class="bi bi-question-circle"></i> {{ exam.questions.count }} savol
+                        </p>
                     </div>
-                    {% else %}
-                    <p class="text-muted text-center py-4">Hozircha imtihonlar yo'q</p>
-                    {% endif %}
+                    <div class="list-item-meta">
+                        {% if exam.is_active %}
+                        <span class="status-badge active">Faol</span>
+                        {% else %}
+                        <span class="status-badge inactive">Nofaol</span>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-file-earmark-text"></i>
                 </div>
+                <div class="empty-title">Hozircha imtihonlar yo'q</div>
+                <div class="empty-text">Birinchi imtihonni yarating</div>
+                <a href="{% url 'exam_create' %}" class="action-btn primary">
+                    <i class="bi bi-plus-circle"></i>
+                    Yangi test
+                </a>
+            </div>
+            {% endif %}
             </div>
         </div>
 
-        <!-- Recent Results -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-graph-up"></i> So'nggi natijalar
-                    </h5>
-                    <a href="{% url 'results_list' %}" class="btn btn-sm btn-primary">
-                        Barchasi
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if recent_results %}
-                    <div class="list-group list-group-flush">
-                        {% for result in recent_results %}
-                        <a href="{% url 'result_detail' result.pk %}" class="list-group-item list-group-item-action">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">{{ result.student.full_name }}</h6>
-                                    <small class="text-muted">{{ result.exam.title }}</small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-primary">{{ result.percentage|floatformat:1 }}%</span>
-                                    <br>
-                                    <small class="text-muted">Band {{ result.band_score }}</small>
-                                </div>
-                            </div>
-                        </a>
-                        {% endfor %}
+        <!-- Top Results -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-trophy"></i>
+                    Eng yaxshi natijalar
+                </h3>
+                <a href="{% url 'results_list' %}" class="card-action">Barchasi →</a>
+            </div>
+            <div style="max-height: 400px; overflow-y: auto;">
+            {% if recent_results %}
+                {% for result in recent_results %}
+                <a href="{% url 'result_detail' result.pk %}" class="list-item">
+                    <div class="list-item-content">
+                        <h6>{{ result.student.full_name }}</h6>
+                        <p>{{ result.exam.title }}</p>
                     </div>
-                    {% else %}
-                    <p class="text-muted text-center py-4">Hozircha natijalar yo'q</p>
-                    {% endif %}
+                    <div class="list-item-meta">
+                        <span class="score-badge">{{ result.percentage|floatformat:1 }}%</span>
+                        <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">Band {{ result.band_score }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-graph-up"></i>
                 </div>
+                <div class="empty-title">Hozircha natijalar yo'q</div>
+                <div class="empty-text">Talabalar imtihon topshirgandan keyin natijalar bu yerda ko'rinadi</div>
+            </div>
+            {% endif %}
             </div>
         </div>
     </div>

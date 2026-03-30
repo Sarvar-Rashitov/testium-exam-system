@@ -10,13 +10,14 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # Redirect root to login
-    path('', RedirectView.as_view(url='/login/', permanent=False)),
+    # Redirect root to auth page
+    path('', RedirectView.as_view(url='/auth/', permanent=False)),
     
     # MVT URLs
     path('', include('organizations.urls_mvt')),
     path('', include('exams.urls_mvt')),
-    path('', include('results.urls_mvt')),
+    path('results/', include('results.urls_mvt')),
+    path('support/', include('support.urls')),
 ]
 
 if settings.DEBUG:

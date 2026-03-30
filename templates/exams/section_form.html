@@ -1,78 +1,297 @@
 {% extends 'base.html' %}
 {% block title %}{{ title }} - {{ exam.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .form-header {
+        margin-bottom: 32px;
+    }
+
+    .form-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+        font-size: 15px;
+        color: #6b7280;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .form-label .required {
+        color: #dc2626;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: #4F46E5;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .form-help {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+
+    .audio-section {
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .audio-section-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .audio-section-title i {
+        color: #4F46E5;
+        font-size: 20px;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px;
+        background: #f9fafb;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .form-check:hover {
+        background: #f3f4f6;
+    }
+
+    .form-check input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #4F46E5;
+    }
+
+    .form-check-label {
+        font-size: 15px;
+        font-weight: 500;
+        color: #1f2937;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        color: #4F46E5;
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 20px;
+        }
+
+        .form-card {
+            padding: 24px;
+        }
+
+        .form-title {
+            font-size: 24px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">{{ title }}</h4>
-                    <small class="text-muted">{{ exam.title }}</small>
+<div class="page-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h1 class="form-title">{{ title }}</h1>
+            <p class="form-subtitle">{{ exam.title }}</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">
+                    Section nomi <span class="required">*</span>
+                </label>
+                {{ form.title }}
+                <div class="form-help">Masalan: "Reading Section 1" yoki "Listening Part 2"</div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        Module <span class="required">*</span>
+                    </label>
+                    {{ form.module }}
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Section nomi *</label>
-                            {{ form.title }}
-                            <small class="text-muted">Masalan: "Reading Section 1" yoki "Listening Part 2"</small>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Module *</label>
-                                {{ form.module }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Tartib</label>
-                                {{ form.order }}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Reading passage matni</label>
-                            {{ form.passage_text }}
-                            <small class="text-muted">Reading module uchun</small>
-                        </div>
-
-                        <div class="card mb-3 bg-light">
-                            <div class="card-body">
-                                <h6><i class="bi bi-volume-up"></i> Listening uchun audio</h6>
-                                <div class="mb-3">
-                                    <label class="form-label">Audio fayl</label>
-                                    <input type="file" name="audio_file" class="form-control" accept="audio/*">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">yoki Audio URL</label>
-                                    {{ form.audio_url }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Rasm (ixtiyoriy)</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                        </div>
-
-                        <div class="form-check mb-3">
-                            {{ form.is_active }}
-                            <label class="form-check-label">Faol</label>
-                        </div>
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Bekor qilish
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Saqlash
-                            </button>
-                        </div>
-                    </form>
+                <div class="form-group">
+                    <label class="form-label">Tartib</label>
+                    {{ form.order }}
+                    <div class="form-help">Section ko'rinish tartibi</div>
                 </div>
             </div>
-        </div>
+
+            <div class="form-group">
+                <label class="form-label">Reading passage matni</label>
+                {{ form.passage_text }}
+                <div class="form-help">Reading module uchun matn kiriting</div>
+            </div>
+
+            <div class="audio-section">
+                <h6 class="audio-section-title">
+                    <i class="bi bi-volume-up-fill"></i>
+                    Listening uchun audio
+                </h6>
+                <div class="form-group">
+                    <label class="form-label">Audio fayl</label>
+                    <input type="file" name="audio_file" class="form-control" accept="audio/*">
+                    <div class="form-help">MP3, WAV yoki boshqa audio formatlar</div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">yoki Audio URL</label>
+                    {{ form.audio_url }}
+                    <div class="form-help">Audio fayl URL manzilini kiriting</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Rasm (ixtiyoriy)</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+                <div class="form-help">Diagram, jadval yoki boshqa rasmlar</div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.is_active }}
+                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                        Section faol
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Bekor qilish
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i>
+                    Saqlash
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

@@ -1,326 +1,296 @@
 {% extends 'base.html' %}
 {% block title %}{{ title }} - {{ exam.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .form-header {
+        margin-bottom: 32px;
+    }
+
+    .form-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+        font-size: 15px;
+        color: #6b7280;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .form-label .required {
+        color: #dc2626;
+    }
+
+    .form-control, select, textarea {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .form-control:focus, select:focus, textarea:focus {
+        border-color: #4F46E5;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-help {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+
+    .audio-section {
+        background: #eff6ff;
+        border: 2px solid #dbeafe;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .audio-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .content-area {
+        margin-top: 24px;
+    }
+
+    .template-card {
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .template-header {
+        font-size: 18px;
+        font-weight: 700;
+        color: #4F46E5;
+        margin-bottom: 20px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        color: #4F46E5;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 20px;
+        }
+
+        .form-card {
+            padding: 24px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-11">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">{{ title }}</h4>
-                    <small class="text-muted">{{ exam.title }}</small>
+<div class="page-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h1 class="form-title">{{ title }}</h1>
+            <p class="form-subtitle">{{ exam.title }}</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" id="questionForm">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        Module <span class="required">*</span>
+                    </label>
+                    {{ form.module }}
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data" id="questionForm">
-                        {% csrf_token %}
-                        
-                        <!-- Basic Fields -->
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Module *</label>
-                                {{ form.module }}
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Savol turi *</label>
-                                {{ form.type }}
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Tartib *</label>
-                                {{ form.order }}
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">Ball *</label>
-                                {{ form.points }}
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Ko'rsatmalar *</label>
-                            {{ form.instruction_text }}
-                            <small class="text-muted">Masalan: "Choose the correct answer" yoki "Complete the sentences"</small>
-                        </div>
-
-                        <!-- Listening Audio Section -->
-                        <div id="audioSection" style="display: none;">
-                            <div class="card mb-3 bg-light">
-                                <div class="card-body">
-                                    <h6><i class="bi bi-volume-up"></i> Audio (Listening uchun)</h6>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Audio fayl yuklash</label>
-                                            <input type="file" name="audio_file" class="form-control" accept="audio/*">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">yoki Audio URL</label>
-                                            {{ form.audio_url }}
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Boshlanish vaqti (soniya)</label>
-                                            {{ form.start_time }}
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Tugash vaqti (soniya)</label>
-                                            {{ form.end_time }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Dynamic Content Area -->
-                        <div id="contentArea">
-                            <!-- Content will be dynamically loaded here based on question type -->
-                        </div>
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Bekor qilish
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Saqlash
-                            </button>
-                        </div>
-                    </form>
+                <div class="form-group">
+                    <label class="form-label">
+                        Savol turi <span class="required">*</span>
+                    </label>
+                    {{ form.type }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        Tartib <span class="required">*</span>
+                    </label>
+                    {{ form.order }}
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        Ball <span class="required">*</span>
+                    </label>
+                    {{ form.points }}
                 </div>
             </div>
-        </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Ko'rsatmalar <span class="required">*</span>
+                </label>
+                {{ form.instruction_text }}
+                <div class="form-help">Masalan: "Choose the correct answer" yoki "Complete the sentences"</div>
+            </div>
+
+            <div id="audioSection" class="audio-section" style="display: none;">
+                <h6 class="audio-title">
+                    <i class="bi bi-volume-up-fill"></i>
+                    Audio (Listening uchun)
+                </h6>
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">Audio fayl yuklash</label>
+                        <input type="file" name="audio_file" class="form-control" accept="audio/*">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">yoki Audio URL</label>
+                        {{ form.audio_url }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">Boshlanish vaqti (soniya)</label>
+                        {{ form.start_time }}
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label">Tugash vaqti (soniya)</label>
+                        {{ form.end_time }}
+                    </div>
+                </div>
+            </div>
+
+            <div id="contentArea" class="content-area">
+                <div class="template-card">
+                    <div class="template-header">Savol turini tanlang</div>
+                    <p style="color: #6b7280;">Yuqorida savol turini tanlagandan keyin, bu yerda tegishli maydonlar paydo bo'ladi.</p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Bekor qilish
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i>
+                    Saqlash
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 <script>
-// Question type templates
-const questionTemplates = {
-    'mcq_single': `
-        <div class="card mb-3">
-            <div class="card-header"><h6>Multiple Choice (Single Answer)</h6></div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Savol matni *</label>
-                    <textarea name="question" class="form-control" rows="3" required></textarea>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">A variant *</label>
-                        <input type="text" name="option_a" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">B variant *</label>
-                        <input type="text" name="option_b" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">C variant *</label>
-                        <input type="text" name="option_c" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">D variant *</label>
-                        <input type="text" name="option_d" class="form-control" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">To'g'ri javob *</label>
-                    <select name="correct_answer" class="form-control" required>
-                        <option value="">Tanlang...</option>
-                        <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="C">C</option>
-                        <option value="D">D</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    `,
-    
-    'mcq_multiple': `
-        <div class="card mb-3">
-            <div class="card-header"><h6>Multiple Choice (Multiple Answers)</h6></div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Savol matni *</label>
-                    <textarea name="question" class="form-control" rows="3" required></textarea>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">A variant *</label>
-                        <input type="text" name="option_a" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">B variant *</label>
-                        <input type="text" name="option_b" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">C variant *</label>
-                        <input type="text" name="option_c" class="form-control" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">D variant *</label>
-                        <input type="text" name="option_d" class="form-control" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">To'g'ri javoblar * (bir nechtasini tanlang)</label>
-                    <div class="form-check">
-                        <input type="checkbox" name="correct_answers" value="A" class="form-check-input">
-                        <label class="form-check-label">A</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="correct_answers" value="B" class="form-check-input">
-                        <label class="form-check-label">B</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="correct_answers" value="C" class="form-check-input">
-                        <label class="form-check-label">C</label>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" name="correct_answers" value="D" class="form-check-input">
-                        <label class="form-check-label">D</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
-    
-    'true_false_ng': `
-        <div class="card mb-3">
-            <div class="card-header"><h6>True / False / Not Given</h6></div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Statement (Bayonot) *</label>
-                    <textarea name="statement" class="form-control" rows="3" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">To'g'ri javob *</label>
-                    <select name="correct_answer" class="form-control" required>
-                        <option value="">Tanlang...</option>
-                        <option value="TRUE">True</option>
-                        <option value="FALSE">False</option>
-                        <option value="NOT GIVEN">Not Given</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    `,
-    
-    'yes_no_ng': `
-        <div class="card mb-3">
-            <div class="card-header"><h6>Yes / No / Not Given</h6></div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Statement (Bayonot) *</label>
-                    <textarea name="statement" class="form-control" rows="3" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">To'g'ri javob *</label>
-                    <select name="correct_answer" class="form-control" required>
-                        <option value="">Tanlang...</option>
-                        <option value="YES">Yes</option>
-                        <option value="NO">No</option>
-                        <option value="NOT GIVEN">Not Given</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    `,
-    
-    'sentence_completion': `
-        <div class="card mb-3">
-            <div class="card-header"><h6>Sentence Completion</h6></div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Jumla (_____ bilan bo'sh joyni belgilang) *</label>
-                    <textarea name="sentence" class="form-control" rows="3" required placeholder="The process begins with _____."></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">To'g'ri javob *</label>
-                    <input type="text" name="correct_answer" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">So'zlar soni cheklovi</label>
-                    <input type="number" name="word_limit" class="form-control" value="3">
-                </div>
-            </div>
-        </div>
-    `,
-    
-    'diagram_labeling': `
-        <div class="card mb-3">
-            <div class="card-header"><h6>Diagram Label Completion</h6></div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Diagram rasmi *</label>
-                    <input type="file" name="image_file" class="form-control" accept="image/*">
-                    <small class="text-muted">yoki</small>
-                    <input type="url" name="image_url" class="form-control mt-2" placeholder="Rasm URL">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Labellar soni *</label>
-                    <input type="number" id="labelCount" class="form-control" value="3" min="1" max="10">
-                    <button type="button" class="btn btn-sm btn-primary mt-2" onclick="generateLabels()">
-                        Labellar yaratish
-                    </button>
-                </div>
-                <div id="labelsContainer"></div>
-            </div>
-        </div>
-    `,
-    
-    'short_answer': `
-        <div class="card mb-3">
-            <div class="card-header"><h6>Short Answer Questions</h6></div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Savol *</label>
-                    <textarea name="question" class="form-control" rows="3" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">To'g'ri javob *</label>
-                    <input type="text" name="correct_answer" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">So'zlar soni cheklovi *</label>
-                    <input type="number" name="word_limit" class="form-control" value="3" required>
-                </div>
-            </div>
-        </div>
-    `,
-    
-    'writing': `
-        <div class="card mb-3">
-            <div class="card-header"><h6>Writing Task</h6></div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Topshiriq matni *</label>
-                    <textarea name="task" class="form-control" rows="5" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Minimal so'zlar soni</label>
-                    <input type="number" name="min_words" class="form-control" value="250">
-                </div>
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> Writing tasks qo'lda baholanadi
-                </div>
-            </div>
-        </div>
-    `
-};
+const moduleSelect = document.getElementById('{{ form.module.id_for_label }}');
+const typeSelect = document.getElementById('{{ form.type.id_for_label }}');
+const audioSection = document.getElementById('audioSection');
+const contentArea = document.getElementById('contentArea');
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    const typeSelect = document.getElementById('question_type');
-    const moduleSelect = document.getElementById('{{ form.module.id_for_label }}');
-    const audioSection = document.getElementById('audioSection');
-    const contentArea = document.getElementById('contentArea');
-    
-    // Load initial template if editing
-    if (typeSelect.value) {
-        loadTemplate(typeSelect.value);
-    }
-    
-    // Type change handler
-    typeSelect.addEventListener('change', function() {
-        loadTemplate(this.value);
-    });
-    
-    // Module change handler
+if (moduleSelect) {
     moduleSelect.addEventListener('change', function() {
         if (this.value === 'listening') {
             audioSection.style.display = 'block';
@@ -329,48 +299,40 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Check initial module
     if (moduleSelect.value === 'listening') {
         audioSection.style.display = 'block';
     }
-});
+}
 
-function loadTemplate(type) {
-    const contentArea = document.getElementById('contentArea');
-    const template = questionTemplates[type];
+if (typeSelect) {
+    typeSelect.addEventListener('change', function() {
+        loadTemplate(this.value);
+    });
     
-    if (template) {
-        contentArea.innerHTML = template;
-    } else {
-        contentArea.innerHTML = '<div class="alert alert-warning">Bu savol turi uchun shablon hali tayyor emas</div>';
+    if (typeSelect.value) {
+        loadTemplate(typeSelect.value);
     }
 }
 
-function generateLabels() {
-    const count = document.getElementById('labelCount').value;
-    const container = document.getElementById('labelsContainer');
-    container.innerHTML = '';
+function loadTemplate(type) {
+    contentArea.innerHTML = '<div class="template-card"><div class="template-header">Yuklanmoqda...</div></div>';
     
-    for (let i = 1; i <= count; i++) {
-        container.innerHTML += `
-            <div class="card mb-2">
-                <div class="card-body">
-                    <h6>Label ${i}</h6>
-                    <div class="mb-2">
-                        <label class="form-label">To'g'ri javob</label>
-                        <input type="text" name="label_${i}_answer" class="form-control" required>
-                    </div>
+    setTimeout(() => {
+        contentArea.innerHTML = `
+            <div class="template-card">
+                <div class="template-header">${type} uchun forma</div>
+                <p style="color: #6b7280; margin-bottom: 16px;">Bu savol turi uchun maxsus maydonlar backend tomonida qayta ishlanadi.</p>
+                <div class="form-group">
+                    <label class="form-label">Savol matni <span class="required">*</span></label>
+                    <textarea name="question_text" class="form-control" rows="4" required placeholder="Savol matnini kiriting..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">To'g'ri javob <span class="required">*</span></label>
+                    <input type="text" name="correct_answer" class="form-control" required placeholder="To'g'ri javobni kiriting...">
                 </div>
             </div>
         `;
-    }
+    }, 300);
 }
 </script>
-
-<style>
-.card-header h6 {
-    margin: 0;
-    color: #0d6efd;
-}
-</style>
 {% endblock %}

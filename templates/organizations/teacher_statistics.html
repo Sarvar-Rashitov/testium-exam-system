@@ -1,0 +1,667 @@
+{% extends 'base.html' %}
+{% block title %}O'qituvchi statistikasi - Testium{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+    }
+
+    .page-header {
+        background: white;
+        padding: 32px;
+        border-radius: 20px;
+        margin-bottom: 32px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+        font-size: 15px;
+        color: #6b7280;
+    }
+
+    .teacher-selector {
+        background: white;
+        padding: 24px;
+        border-radius: 20px;
+        margin-bottom: 32px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .selector-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 12px;
+    }
+
+    .teacher-select {
+        width: 100%;
+        padding: 14px 18px;
+        font-size: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .teacher-select:focus {
+        border-color: #4F46E5;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .stat-card.blue::before { background: linear-gradient(90deg, #4F46E5, #6366F1); }
+    .stat-card.green::before { background: linear-gradient(90deg, #10b981, #22c55e); }
+    .stat-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .stat-card.orange::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 16px;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .stat-card.blue .stat-icon { background: #eef2ff; color: #4F46E5; }
+    .stat-card.green .stat-icon { background: #d1fae5; color: #10b981; }
+    .stat-card.purple .stat-icon { background: #ede9fe; color: #8b5cf6; }
+    .stat-card.orange .stat-icon { background: #fef3c7; color: #f59e0b; }
+
+    .stat-label {
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 36px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+
+    .full-width-card {
+        grid-column: 1 / -1;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 20px;
+    }
+
+    .student-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-height: 350px;
+        overflow-y: auto;
+    }
+
+    .student-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #f9fafb;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+    }
+
+    .student-item:hover {
+        background: #f3f4f6;
+        transform: translateX(4px);
+    }
+
+    .student-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .student-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .student-details h6 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .student-details small {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .student-score {
+        text-align: right;
+    }
+
+    .score-badge {
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 700;
+        background: #d1fae5;
+        color: #10b981;
+        display: inline-block;
+        margin-bottom: 4px;
+    }
+
+    .score-date {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 24px;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 16px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: #9ca3af;
+    }
+
+    .empty-text {
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 20px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Chart.js default configuration
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#6b7280';
+
+    // Score Distribution Doughnut Chart
+    {% if score_distribution %}
+    const scoreDistCtx = document.getElementById('scoreDistributionChart');
+    if (scoreDistCtx) {
+        new Chart(scoreDistCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [{% for range in score_distribution %}'{{ range.range }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    data: [{% for range in score_distribution %}{{ range.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: [
+                        '#ef4444',
+                        '#f59e0b',
+                        '#fbbf24',
+                        '#22c55e',
+                        '#10b981'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.parsed || 0;
+                                let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                let percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+
+    // Band Distribution Bar Chart
+    {% if band_distribution %}
+    const bandDistCtx = document.getElementById('bandDistributionChart');
+    if (bandDistCtx) {
+        new Chart(bandDistCtx, {
+            type: 'bar',
+            data: {
+                labels: [{% for band, count in band_distribution.items %}'Band {{ band }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: 'Natijalar soni',
+                    data: [{% for band, count in band_distribution.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                    borderColor: 'rgba(79, 70, 229, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+
+    // Exam Performance Chart
+    {% if exam_performance %}
+    const examPerfCtx = document.getElementById('examPerformanceChart');
+    if (examPerfCtx) {
+        new Chart(examPerfCtx, {
+            type: 'bar',
+            data: {
+                labels: [{% for item in exam_performance %}'{{ item.exam_title|truncatechars:20 }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    label: "O'rtacha ball (%)",
+                    data: [{% for item in exam_performance %}{{ item.avg_percentage }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+    {% endif %}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-graph-up-arrow"></i>
+            O'qituvchi statistikasi
+        </h1>
+        <p class="page-subtitle">O'qituvchilarning o'quvchilari natijalarini tahlil qiling</p>
+    </div>
+
+    <div class="teacher-selector">
+        <label class="selector-label">O'qituvchini tanlang</label>
+        <select class="teacher-select" onchange="window.location.href='?teacher_id=' + this.value">
+            <option value="">Barcha o'qituvchilar</option>
+            {% for t in all_teachers %}
+            <option value="{{ t.id }}" {% if selected_teacher and selected_teacher.id == t.id %}selected{% endif %}>
+                {{ t.full_name }} ({{ t.student_count }} o'quvchi)
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    {% if selected_teacher %}
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Jami o'quvchilar</div>
+                    <div class="stat-value">{{ stats.total_students|default:0 }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card green">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">Jami natijalar</div>
+                    <div class="stat-value">{{ stats.total_results|default:0 }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card purple">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">O'rtacha ball</div>
+                    <div class="stat-value">{{ stats.avg_percentage|default:0|floatformat:1 }}%</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card orange">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-label">O'rtacha Band</div>
+                    <div class="stat-value">{{ stats.avg_band|default:0|floatformat:1 }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-award"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <!-- Score Distribution -->
+        <div class="chart-card">
+            <h2 class="card-title">
+                <i class="bi bi-pie-chart"></i>
+                Ball taqsimoti
+            </h2>
+            {% if score_distribution %}
+            <div class="chart-container">
+                <canvas id="scoreDistributionChart"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-pie-chart"></i>
+                </div>
+                <p class="empty-text">Ma'lumot yo'q</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Band Distribution -->
+        <div class="chart-card">
+            <h2 class="card-title">
+                <i class="bi bi-bar-chart"></i>
+                IELTS Band taqsimoti
+            </h2>
+            {% if band_distribution %}
+            <div class="chart-container">
+                <canvas id="bandDistributionChart"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-bar-chart"></i>
+                </div>
+                <p class="empty-text">Ma'lumot yo'q</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Exam Performance -->
+        <div class="chart-card full-width-card">
+            <h2 class="card-title">
+                <i class="bi bi-clipboard-data"></i>
+                Imtihonlar bo'yicha natijalar
+            </h2>
+            {% if exam_performance %}
+            <div class="chart-container" style="height: 350px;">
+                <canvas id="examPerformanceChart"></canvas>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-clipboard-data"></i>
+                </div>
+                <p class="empty-text">Ma'lumot yo'q</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Top Students -->
+        <div class="chart-card">
+            <h2 class="card-title">
+                <i class="bi bi-trophy"></i>
+                Eng yaxshi o'quvchilar
+            </h2>
+            {% if top_students %}
+            <div class="student-list">
+                {% for result in top_students %}
+                <div class="student-item">
+                    <div class="student-info">
+                        <div class="student-avatar">
+                            {{ result.student.full_name|first|upper }}
+                        </div>
+                        <div class="student-details">
+                            <h6>{{ result.student.full_name }}</h6>
+                            <small>{{ result.exam.title }}</small>
+                        </div>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-badge">{{ result.percentage|floatformat:1 }}%</span>
+                        <div class="score-date">Band {{ result.band_score }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-trophy"></i>
+                </div>
+                <p class="empty-text">Natijalar yo'q</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Results -->
+        <div class="chart-card">
+            <h2 class="card-title">
+                <i class="bi bi-clock-history"></i>
+                So'nggi natijalar
+            </h2>
+            {% if recent_results %}
+            <div class="student-list">
+                {% for result in recent_results %}
+                <div class="student-item">
+                    <div class="student-info">
+                        <div class="student-avatar">
+                            {{ result.student.full_name|first|upper }}
+                        </div>
+                        <div class="student-details">
+                            <h6>{{ result.student.full_name }}</h6>
+                            <small>{{ result.exam.title }}</small>
+                        </div>
+                    </div>
+                    <div class="student-score">
+                        <span class="score-badge">{{ result.percentage|floatformat:1 }}%</span>
+                        <div class="score-date">{{ result.completed_at|date:"d.m.Y" }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <p class="empty-text">Natijalar yo'q</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state" style="background: white; border-radius: 20px; border: 1px solid #e5e7eb;">
+        <div class="empty-icon">
+            <i class="bi bi-person-badge"></i>
+        </div>
+        <h2 style="font-size: 24px; font-weight: 700; color: #1f2937; margin-bottom: 12px;">O'qituvchi tanlanmagan</h2>
+        <p class="empty-text">Yuqoridan o'qituvchini tanlang</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

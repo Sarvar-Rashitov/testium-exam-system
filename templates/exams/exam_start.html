@@ -1,63 +1,378 @@
-{% extends 'base.html' %}
-{% block title %}{{ exam.title }} - Ro'yxatdan o'tish{% endblock %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exam.title }} - Ro'yxatdan o'tish</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body p-5">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-clipboard-check text-primary" style="font-size: 3rem;"></i>
-                        <h2 class="mt-3">{{ exam.title }}</h2>
-                        <p class="text-muted">{{ exam.description }}</p>
-                    </div>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
 
-                    <div class="alert alert-info">
-                        <h6><i class="bi bi-info-circle"></i> Imtihon haqida:</h6>
-                        <ul class="mb-0">
-                            <li>Davomiyligi: <strong>{{ exam.duration }} daqiqa</strong></li>
-                            <li>Sectionlar soni: <strong>{{ exam.sections.count }}</strong></li>
-                            <li>Imtihon boshlanganidan keyin to'xtatib bo'lmaydi</li>
-                        </ul>
-                    </div>
+    .start-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
 
-                    <h5 class="mb-3">Ma'lumotlaringizni kiriting:</h5>
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Ism *</label>
-                            {{ form.first_name }}
-                        </div>
+    .start-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        max-width: 650px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
 
-                        <div class="mb-3">
-                            <label class="form-label">Familiya *</label>
-                            {{ form.last_name }}
-                        </div>
+    .exam-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        color: white;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+    }
 
-                        <div class="mb-3">
-                            <label class="form-label">Telefon raqam *</label>
-                            {{ form.phone }}
-                        </div>
+    .exam-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        text-align: center;
+        margin-bottom: 10px;
+    }
 
-                        <div class="mb-3">
-                            <label class="form-label">Telegram username</label>
-                            {{ form.telegram_username }}
-                        </div>
+    .exam-description {
+        font-size: 15px;
+        color: #6b7280;
+        text-align: center;
+        margin-bottom: 28px;
+    }
 
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            {{ form.email }}
-                        </div>
+    .info-box {
+        background: #eff6ff;
+        border: 2px solid #dbeafe;
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 28px;
+    }
 
-                        <button type="submit" class="btn btn-primary w-100 py-2">
-                            <i class="bi bi-play-circle"></i> Imtihonni boshlash
-                        </button>
-                    </form>
+    .info-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-list li {
+        font-size: 14px;
+        color: #1f2937;
+        padding: 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-list li i {
+        color: #3b82f6;
+        font-size: 15px;
+    }
+
+    .form-section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 18px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 14px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 6px;
+    }
+
+    .form-label .required {
+        color: #dc2626;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: #4F46E5;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 14px;
+    }
+
+    .radio-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .radio-option input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: #4F46E5;
+    }
+
+    .radio-option label {
+        font-size: 14px;
+        color: #1f2937;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .teacher-field {
+        display: none;
+        animation: slideDown 0.3s ease;
+    }
+
+    .teacher-field.show {
+        display: block;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .btn-start {
+        width: 100%;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+    }
+
+    .btn-start:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-start i {
+        font-size: 18px;
+    }
+
+    @media (max-width: 768px) {
+        .start-card {
+            padding: 28px 20px;
+        }
+
+        .exam-title {
+            font-size: 22px;
+        }
+
+        .exam-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 30px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .radio-group {
+            flex-direction: column;
+            gap: 12px;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="start-container">
+    <div class="start-card">
+        <div class="exam-icon">
+            <i class="bi bi-clipboard-check"></i>
+        </div>
+        
+        <h1 class="exam-title">{{ exam.title }}</h1>
+        <p class="exam-description">{{ exam.description }}</p>
+
+        <div class="info-box">
+            <h6 class="info-title">
+                <i class="bi bi-info-circle"></i>
+                Imtihon haqida
+            </h6>
+            <ul class="info-list">
+                <li>
+                    <i class="bi bi-clock"></i>
+                    <span>Davomiyligi: <strong>{{ exam.duration }} daqiqa</strong></span>
+                </li>
+                <li>
+                    <i class="bi bi-layers"></i>
+                    <span>Sectionlar soni: <strong>{{ exam.sections.count }}</strong></span>
+                </li>
+                <li>
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Imtihon boshlanganidan keyin to'xtatib bo'lmaydi</span>
+                </li>
+            </ul>
+        </div>
+
+        <h5 class="form-section-title">Ma'lumotlaringizni kiriting</h5>
+        
+        <form method="post" id="studentForm">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">
+                        Ism <span class="required">*</span>
+                    </label>
+                    {{ form.first_name }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        Familiya <span class="required">*</span>
+                    </label>
+                    {{ form.last_name }}
                 </div>
             </div>
-        </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Telefon raqam <span class="required">*</span>
+                </label>
+                {{ form.phone }}
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Telegram username</label>
+                    {{ form.telegram_username }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    {{ form.email }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    O'quvchi turi <span class="required">*</span>
+                </label>
+                <div class="radio-group">
+                    {% for value, label in form.student_type.field.choices %}
+                    <div class="radio-option">
+                        <input type="radio" 
+                               name="student_type" 
+                               id="student_type_{{ value }}" 
+                               value="{{ value }}"
+                               {% if form.student_type.value == value or value == 'external' and not form.student_type.value %}checked{% endif %}
+                               onchange="toggleTeacherField()">
+                        <label for="student_type_{{ value }}">{{ label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group teacher-field" id="teacherField">
+                <label class="form-label">
+                    O'qituvchini tanlang <span class="required">*</span>
+                </label>
+                {{ form.teacher }}
+            </div>
+
+            <button type="submit" class="btn-start">
+                <i class="bi bi-play-circle-fill"></i>
+                Imtihonni boshlash
+            </button>
+        </form>
     </div>
 </div>
-{% endblock %}
+
+<script>
+function toggleTeacherField() {
+    const institutionRadio = document.getElementById('student_type_institution');
+    const teacherField = document.getElementById('teacherField');
+    
+    if (institutionRadio && institutionRadio.checked) {
+        teacherField.classList.add('show');
+    } else {
+        teacherField.classList.remove('show');
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleTeacherField();
+});
+</script>
+</body>
+</html>

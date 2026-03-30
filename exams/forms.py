@@ -213,11 +213,15 @@ class ExamLinkForm(forms.ModelForm):
     
     class Meta:
         model = ExamLink
-        fields = ('max_uses', 'is_active')
+        fields = ('max_uses', 'resume_password', 'is_active')
         widgets = {
             'max_uses': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Maksimal foydalanish soni (bo\'sh = cheksiz)'
+            }),
+            'resume_password': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Davom ettirish paroli (masalan: 1234)'
             }),
             'is_active': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'

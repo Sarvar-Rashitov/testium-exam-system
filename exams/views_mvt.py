@@ -531,6 +531,22 @@ def generate_link_view(request, exam_pk):
     return render(request, 'exams/link_form.html', {'form': form, 'exam': exam})
 
 
+@login_required
+def delete_link_view(request, pk):
+    """Delete exam link"""
+    link = get_object_or_404(ExamLink, pk=pk)
+    exam = link.exam
+    
+    # Check permission
+    if exam.organization != request.user:
+        messages.error(request, 'Ruxsat yo\'q!')
+        return redirect('exam_list')
+    
+    link.delete()
+    messages.success(request, 'Link o\'chirildi!')
+    return redirect('exam_detail', pk=exam.pk)
+
+
 def exam_start_view(request, token):
     """Public exam start view"""
     exam_link = get_object_or_404(ExamLink, unique_token=token)
@@ -539,14 +555,14 @@ def exam_start_view(request, token):
         return render(request, 'exams/link_expired.html', {'exam_link': exam_link})
     
     if request.method == 'POST':
-        form = StudentRegistrationForm(request.POST)
+        form = StudentRegistrationForm(request.POST, organization=exam_link.exam.organization)
         if form.is_valid():
             student = form.save()
             exam_link.use_count += 1
             exam_link.save()
             return redirect('exam_take', token=token, student_id=student.id)
     else:
-        form = StudentRegistrationForm()
+        form = StudentRegistrationForm(organization=exam_link.exam.organization)
     
     return render(request, 'exams/exam_start.html', {
         'form': form,

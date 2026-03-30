@@ -1,64 +1,215 @@
 {% extends 'base.html' %}
 {% block title %}{{ title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .form-header {
+        margin-bottom: 32px;
+    }
+
+    .form-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+        font-size: 15px;
+        color: #6b7280;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .form-label .required {
+        color: #dc2626;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: #4F46E5;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-help {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        color: #4F46E5;
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 20px;
+        }
+
+        .form-card {
+            padding: 24px;
+        }
+
+        .form-title {
+            font-size: 24px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">{{ title }}</h4>
-                    <small class="text-muted">{{ section.title }} - {{ section.exam.title }}</small>
-                </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Savol guruhi nomi *</label>
-                            {{ form.title }}
-                            <small class="text-muted">Masalan: "Questions 1-5" yoki "Questions 6-10"</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Savol turi *</label>
-                            {{ form.question_type }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Ko'rsatmalar *</label>
-                            {{ form.instructions }}
-                            <small class="text-muted">Masalan: "Choose the correct answer" yoki "Complete the sentences"</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Passage matni (ixtiyoriy)</label>
-                            {{ form.passage_text }}
-                            <small class="text-muted">Agar bu guruh uchun alohida passage kerak bo'lsa</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Rasm (ixtiyoriy)</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Tartib</label>
-                            {{ form.order }}
-                        </div>
-
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="{% url 'exam_detail' section.exam.pk %}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Bekor qilish
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Saqlash
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="page-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h1 class="form-title">{{ title }}</h1>
+            <p class="form-subtitle">{{ section.title }} - {{ section.exam.title }}</p>
         </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">
+                    Savol guruhi nomi <span class="required">*</span>
+                </label>
+                {{ form.title }}
+                <div class="form-help">Masalan: "Questions 1-5" yoki "Questions 6-10"</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Savol turi <span class="required">*</span>
+                </label>
+                {{ form.question_type }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Ko'rsatmalar <span class="required">*</span>
+                </label>
+                {{ form.instructions }}
+                <div class="form-help">Masalan: "Choose the correct answer" yoki "Complete the sentences"</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Passage matni (ixtiyoriy)</label>
+                {{ form.passage_text }}
+                <div class="form-help">Agar bu guruh uchun alohida passage kerak bo'lsa</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Rasm (ixtiyoriy)</label>
+                <input type="file" name="image" class="form-control" accept="image/*">
+                <div class="form-help">Diagram, jadval yoki boshqa rasmlar</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tartib</label>
+                {{ form.order }}
+                <div class="form-help">Guruh ko'rinish tartibi</div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'exam_detail' section.exam.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Bekor qilish
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i>
+                    Saqlash
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

@@ -7,7 +7,7 @@ from .views_mvt import (
     question_tfng_create_view, question_ynng_create_view,
     question_sentence_create_view, question_short_answer_create_view,
     question_diagram_create_view, question_summary_create_view,
-    generate_link_view, exam_start_view, exam_take_view
+    generate_link_view, delete_link_view, exam_start_view, exam_take_view
 )
 
 urlpatterns = [
@@ -43,6 +43,7 @@ urlpatterns = [
     
     # Link URLs
     path('exams/<int:exam_pk>/generate-link/', generate_link_view, name='generate_link'),
+    path('links/<int:pk>/delete/', delete_link_view, name='delete_link'),
     
     # Public URLs
     path('start/<uuid:token>/', exam_start_view, name='exam_start'),

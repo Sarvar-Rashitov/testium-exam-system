@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+{% block title %}Sozlamalar - Testium{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        padding: 32px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .settings-header {
+        margin-bottom: 32px;
+    }
+
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+        font-size: 16px;
+        color: #6b7280;
+    }
+
+    .settings-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 24px;
+    }
+
+    .settings-tabs {
+        background: white;
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid #e5e7eb;
+        height: fit-content;
+        position: sticky;
+        top: 24px;
+    }
+
+    .tab-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        color: #6b7280;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-size: 15px;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .tab-item:hover {
+        background: #f9fafb;
+        color: #4F46E5;
+    }
+
+    .tab-item.active {
+        background: #eef2ff;
+        color: #4F46E5;
+    }
+
+    .tab-item i {
+        font-size: 20px;
+        width: 20px;
+    }
+
+    .settings-content {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .section-description {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: #4F46E5;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-control[type="color"] {
+        height: 50px;
+        padding: 4px;
+        cursor: pointer;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 10px;
+        margin-bottom: 12px;
+    }
+
+    .form-check input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        font-size: 14px;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        background: #4F46E5;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        background: #4338ca;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-secondary {
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: 2px solid #e5e7eb;
+        font-size: 15px;
+        font-weight: 600;
+        background: white;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+        border-color: #4F46E5;
+        color: #4F46E5;
+    }
+
+    .color-preview {
+        display: flex;
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .color-box {
+        flex: 1;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    .logo-preview {
+        margin-top: 12px;
+    }
+
+    .logo-preview img {
+        max-width: 200px;
+        max-height: 100px;
+        border-radius: 10px;
+        border: 2px solid #e5e7eb;
+    }
+
+    .divider {
+        height: 1px;
+        background: #e5e7eb;
+        margin: 32px 0;
+    }
+
+    @media (max-width: 968px) {
+        .settings-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .settings-tabs {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <div class="settings-header">
+        <h1 class="page-title">
+            <i class="bi bi-gear"></i>
+            Sozlamalar
+        </h1>
+        <p class="page-subtitle">Platformangizni boshqaring va sozlang</p>
+    </div>
+
+    <div class="settings-layout">
+        <!-- Tabs -->
+        <div class="settings-tabs">
+            <a href="?tab=profile" class="tab-item {% if active_tab == 'profile' %}active{% endif %}">
+                <i class="bi bi-person"></i>
+                <span>Profil</span>
+            </a>
+            <a href="?tab=branding" class="tab-item {% if active_tab == 'branding' %}active{% endif %}">
+                <i class="bi bi-image"></i>
+                <span>Logo</span>
+            </a>
+            <a href="?tab=notifications" class="tab-item {% if active_tab == 'notifications' %}active{% endif %}">
+                <i class="bi bi-bell"></i>
+                <span>Xabarnomalar</span>
+            </a>
+            <a href="?tab=security" class="tab-item {% if active_tab == 'security' %}active{% endif %}">
+                <i class="bi bi-shield-lock"></i>
+                <span>Xavfsizlik</span>
+            </a>
+        </div>
+
+        <!-- Content -->
+        <div class="settings-content">
+            {% if active_tab == 'profile' %}
+            <h2 class="section-title">Profil ma'lumotlari</h2>
+            <p class="section-description">Tashkilot ma'lumotlarini yangilang</p>
+
+            <form method="post" action="{% url 'update_profile' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">To'liq ism</label>
+                    <input type="text" name="full_name" class="form-control" value="{{ user.full_name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tashkilot nomi</label>
+                    <input type="text" name="organization_name" class="form-control" value="{{ user.organization_name }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telefon</label>
+                    <input type="text" name="phone" class="form-control" value="{{ user.phone }}" required>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="bi bi-check"></i>
+                    Saqlash
+                </button>
+            </form>
+
+            {% elif active_tab == 'branding' %}
+            <h2 class="section-title">Logo sozlamalari</h2>
+            <p class="section-description">Tashkilot logosini yuklang</p>
+
+            <form method="post" action="{% url 'update_settings' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Logo</label>
+                    <input type="file" name="logo" class="form-control" accept="image/*">
+                    <small style="color: #6b7280; font-size: 13px; display: block; margin-top: 8px;">
+                        Barcha rasm formatlari qabul qilinadi (PNG, JPG, JPEG, GIF, SVG, WebP va boshqalar)
+                    </small>
+                    {% if settings.logo %}
+                    <div class="logo-preview">
+                        <img src="{{ settings.logo.url }}" alt="Logo">
+                    </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="bi bi-check"></i>
+                    Saqlash
+                </button>
+            </form>
+
+            {% elif active_tab == 'notifications' %}
+            <h2 class="section-title">Xabarnoma sozlamalari</h2>
+            <p class="section-description">Xabarnomalarni boshqaring</p>
+
+            <form method="post" action="{% url 'update_settings' %}">
+                {% csrf_token %}
+                <div class="form-check">
+                    <input type="checkbox" name="email_notifications" id="email_notif" {% if settings.email_notifications %}checked{% endif %}>
+                    <label for="email_notif" class="form-check-label">Email xabarnomalar</label>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" name="telegram_notifications" id="tg_notif" {% if settings.telegram_notifications %}checked{% endif %}>
+                    <label for="tg_notif" class="form-check-label">Telegram xabarnomalar</label>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telegram Bot Token</label>
+                    <input type="text" name="telegram_bot_token" class="form-control" value="{{ settings.telegram_bot_token }}" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
+                    <small style="color: #6b7280; font-size: 13px; display: block; margin-top: 8px;">
+                        Telegram bot orqali xabarnomalar yuborish uchun bot tokenini kiriting
+                    </small>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="bi bi-check"></i>
+                    Saqlash
+                </button>
+            </form>
+
+            {% elif active_tab == 'security' %}
+            <h2 class="section-title">Xavfsizlik</h2>
+            <p class="section-description">Parolni o'zgartirish</p>
+
+            <form method="post" action="{% url 'change_password' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Joriy parol</label>
+                    <input type="password" name="old_password" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Yangi parol</label>
+                    <input type="password" name="new_password1" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Yangi parolni tasdiqlang</label>
+                    <input type="password" name="new_password2" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="bi bi-shield-check"></i>
+                    Parolni o'zgartirish
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

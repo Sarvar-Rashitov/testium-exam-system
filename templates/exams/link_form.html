@@ -1,50 +1,279 @@
 {% extends 'base.html' %}
 {% block title %}Link yaratish - {{ exam.title }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .form-header {
+        margin-bottom: 32px;
+    }
+
+    .form-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-subtitle {
+        font-size: 15px;
+        color: #6b7280;
+        padding-left: 44px;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: #4F46E5;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .form-help {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px;
+        background: #f9fafb;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .form-check:hover {
+        background: #f3f4f6;
+    }
+
+    .form-check input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #4F46E5;
+    }
+
+    .form-check-label {
+        font-size: 15px;
+        font-weight: 500;
+        color: #1f2937;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .info-box {
+        background: #eff6ff;
+        border: 2px solid #dbeafe;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+
+    .info-box-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .info-box-text {
+        font-size: 13px;
+        color: #1f2937;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        color: #4F46E5;
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981, #22c55e);
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 20px;
+        }
+
+        .form-card {
+            padding: 24px;
+        }
+
+        .form-title {
+            font-size: 24px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Yangi link yaratish</h4>
-                    <small class="text-muted">{{ exam.title }}</small>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Amal qilish muddati (kunlarda)</label>
-                            {{ form.expires_in_days }}
-                            <small class="text-muted">Bo'sh qoldiring cheksiz uchun</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Maksimal foydalanish soni</label>
-                            {{ form.max_uses }}
-                            <small class="text-muted">Bo'sh qoldiring cheksiz uchun</small>
-                        </div>
-
-                        <div class="mb-3 form-check">
-                            {{ form.is_active }}
-                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                Faol
-                            </label>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Bekor qilish
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Yaratish
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="page-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h1 class="form-title">
+                <i class="bi bi-link-45deg"></i>
+                Yangi link yaratish
+            </h1>
+            <p class="form-subtitle">{{ exam.title }}</p>
         </div>
+
+        <div class="info-box">
+            <div class="info-box-title">
+                <i class="bi bi-lightbulb"></i>
+                Maslahat
+            </div>
+            <p class="info-box-text">
+                Link yaratilgandan so'ng, uni talabalar bilan ulashing. Ular link orqali imtihonni topshirishlari mumkin.
+            </p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">Amal qilish muddati (kunlarda)</label>
+                {{ form.expires_in_days }}
+                <div class="form-help">Bo'sh qoldiring cheksiz uchun</div>
+                {% if form.expires_in_days.errors %}
+                <div class="form-help" style="color: #dc2626;">{{ form.expires_in_days.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Maksimal foydalanish soni</label>
+                {{ form.max_uses }}
+                <div class="form-help">Bo'sh qoldiring cheksiz uchun</div>
+                {% if form.max_uses.errors %}
+                <div class="form-help" style="color: #dc2626;">{{ form.max_uses.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-shield-lock"></i> Davom ettirish paroli
+                </label>
+                {{ form.resume_password }}
+                <div class="form-help">
+                    <i class="bi bi-info-circle"></i> 
+                    Talaba tab almashtirganda imtihon bloklanadi. Davom ettirish uchun bu parolni kiriting.
+                </div>
+                {% if form.resume_password.errors %}
+                <div class="form-help" style="color: #dc2626;">{{ form.resume_password.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.is_active }}
+                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                        Linkni faol qilish
+                    </label>
+                </div>
+                <div class="form-help">Faol linklar orqali imtihon topshirish mumkin</div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Bekor qilish
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i>
+                    Yaratish
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

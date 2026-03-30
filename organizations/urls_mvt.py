@@ -1,9 +1,30 @@
 from django.urls import path
-from .views_mvt import register_view, login_view, logout_view, dashboard_view
+from .views_mvt import (
+    auth_view, register_view, login_view, logout_view, dashboard_view,
+    teacher_list_view, teacher_create_view, teacher_edit_view, teacher_delete_view,
+    teacher_statistics_view
+)
+from .views_settings import (
+    settings_view, update_profile_view, update_settings_view, change_password_view
+)
 
 urlpatterns = [
+    path('auth/', auth_view, name='auth'),
     path('register/', register_view, name='register'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
     path('dashboard/', dashboard_view, name='dashboard'),
+    
+    # Teacher URLs
+    path('teachers/', teacher_list_view, name='teacher_list'),
+    path('teachers/create/', teacher_create_view, name='teacher_create'),
+    path('teachers/<int:pk>/edit/', teacher_edit_view, name='teacher_edit'),
+    path('teachers/<int:pk>/delete/', teacher_delete_view, name='teacher_delete'),
+    path('teachers/statistics/', teacher_statistics_view, name='teacher_statistics'),
+    
+    # Settings URLs
+    path('settings/', settings_view, name='settings'),
+    path('settings/profile/update/', update_profile_view, name='update_profile'),
+    path('settings/update/', update_settings_view, name='update_settings'),
+    path('settings/password/change/', change_password_view, name='change_password'),
 ]

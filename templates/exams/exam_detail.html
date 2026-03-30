@@ -1,183 +1,653 @@
 {% extends 'base.html' %}
-{% block title %}{{ exam.title }} - Imtihon{% endblock %}
+{% block title %}{{ exam.title }} - Testium{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+    }
+
+    .breadcrumb-nav {
+        background: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .breadcrumb {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .breadcrumb-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .breadcrumb-item a {
+        color: #4F46E5;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #6366F1;
+    }
+
+    .breadcrumb-item.active {
+        color: #6b7280;
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: '/';
+        color: #d1d5db;
+    }
+
+    .exam-header-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 24px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .exam-title-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .exam-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .exam-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-edit {
+        background: #4F46E5;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: #6366F1;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .btn-delete:hover {
+        background: #fecaca;
+    }
+
+    .exam-description {
+        font-size: 15px;
+        color: #6b7280;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+
+    .exam-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: #f9fafb;
+        border-radius: 12px;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: #eef2ff;
+        color: #4F46E5;
+    }
+
+    .stat-content strong {
+        display: block;
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .stat-content span {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 24px;
+    }
+
+    .sections-card, .links-card, .guide-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-add {
+        padding: 8px 16px;
+        border-radius: 10px;
+        border: none;
+        font-size: 14px;
+        font-weight: 600;
+        background: #10b981;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+
+    .btn-add:hover {
+        background: #22c55e;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .section-item {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .section-badges {
+        display: flex;
+        gap: 8px;
+    }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-info {
+        background: #dbeafe;
+        color: #3b82f6;
+    }
+
+    .badge-secondary {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .section-content {
+        margin-top: 16px;
+    }
+
+    .passage-preview {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        max-height: 150px;
+        overflow-y: auto;
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 12px;
+    }
+
+    .audio-player {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+
+    .group-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .group-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+    }
+
+    .group-item:hover {
+        border-color: #4F46E5;
+        transform: translateX(4px);
+    }
+
+    .group-info strong {
+        display: block;
+        font-size: 15px;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .group-info small {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .link-item {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .link-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .link-date {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .link-status {
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .link-status.active {
+        background: #d1fae5;
+        color: #10b981;
+    }
+
+    .link-status.inactive {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .link-input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .link-input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 13px;
+        background: white;
+        color: #6b7280;
+    }
+
+    .btn-copy {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid #4F46E5;
+        background: white;
+        color: #4F46E5;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+    }
+
+    .btn-copy:hover {
+        background: #4F46E5;
+        color: white;
+    }
+
+    .link-usage {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .guide-card ol {
+        padding-left: 20px;
+        margin: 0;
+    }
+
+    .guide-card li {
+        font-size: 14px;
+        color: #6b7280;
+        line-height: 1.8;
+        margin-bottom: 8px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .empty-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 16px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #9ca3af;
+    }
+
+    .empty-text {
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 20px;
+        }
+
+        .exam-title {
+            font-size: 24px;
+        }
+
+        .exam-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'exam_list' %}">Imtihonlar</a></li>
-                    <li class="breadcrumb-item active">{{ exam.title }}</li>
-                </ol>
-            </nav>
+<div class="page-container">
+    <nav class="breadcrumb-nav">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'exam_list' %}">Imtihonlar</a></li>
+            <li class="breadcrumb-item active">{{ exam.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="exam-header-card">
+        <div class="exam-title-section">
+            <h1 class="exam-title">{{ exam.title }}</h1>
+            <div class="exam-actions">
+                <a href="{% url 'exam_edit' exam.pk %}" class="btn-action btn-edit">
+                    <i class="bi bi-pencil"></i>
+                    Tahrirlash
+                </a>
+                <a href="#" onclick="confirmDelete(event, '{{ exam.title }}', '{% url 'exam_delete' exam.pk %}')" class="btn-action btn-delete">
+                    <i class="bi bi-trash"></i>
+                    O'chirish
+                </a>
+            </div>
+        </div>
+
+        <p class="exam-description">{{ exam.description|default:"Tavsif yo'q" }}</p>
+
+        <div class="exam-stats">
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="bi bi-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <strong>{{ exam.duration }}</strong>
+                    <span>Daqiqa</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="bi bi-layers"></i>
+                </div>
+                <div class="stat-content">
+                    <strong>{{ sections.count }}</strong>
+                    <span>Sectionlar</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon">
+                    <i class="bi bi-question-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <strong>{{ total_questions }}</strong>
+                    <span>Savollar</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">{{ exam.title }}</h4>
-                    <div>
-                        <a href="{% url 'exam_edit' exam.pk %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-pencil"></i> Tahrirlash
-                        </a>
-                        <a href="{% url 'exam_delete' exam.pk %}" class="btn btn-sm btn-danger">
-                            <i class="bi bi-trash"></i> O'chirish
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p>{{ exam.description }}</p>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p><i class="bi bi-clock"></i> <strong>Davomiyligi:</strong> {{ exam.duration }} daqiqa</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><i class="bi bi-layers"></i> <strong>Sectionlar:</strong> {{ sections.count }}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><i class="bi bi-question-circle"></i> <strong>Savollar:</strong> {{ total_questions }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sections -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-layers"></i> Sectionlar</h5>
-                    <a href="{% url 'section_create' exam.pk %}" class="btn btn-sm btn-success">
-                        <i class="bi bi-plus-circle"></i> Section qo'shish
+    <div class="content-grid">
+        <div>
+            <div class="sections-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-layers"></i>
+                        Sectionlar
+                    </h2>
+                    <a href="{% url 'section_create' exam.pk %}" class="btn-add">
+                        <i class="bi bi-plus-circle"></i>
+                        Section qo'shish
                     </a>
                 </div>
-                <div class="card-body">
-                    {% if sections %}
-                    <div class="accordion" id="sectionsAccordion">
-                        {% for section in sections %}
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="heading{{ section.id }}">
-                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ section.id }}">
-                                    <strong>{{ section.title }}</strong>
-                                    <span class="badge bg-info ms-2">{{ section.get_module_display }}</span>
-                                    <span class="badge bg-secondary ms-2">{{ section.question_groups.count }} guruh</span>
-                                </button>
-                            </h2>
-                            <div id="collapse{{ section.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#sectionsAccordion">
-                                <div class="accordion-body">
-                                    {% if section.passage_text %}
-                                    <div class="mb-3">
-                                        <strong>Passage:</strong>
-                                        <div class="border p-2 bg-light" style="max-height: 200px; overflow-y: auto;">
-                                            {{ section.passage_text|linebreaks|truncatewords:100 }}
-                                        </div>
-                                    </div>
-                                    {% endif %}
 
-                                    {% if section.audio_file or section.audio_url %}
-                                    <div class="mb-3">
-                                        <strong><i class="bi bi-volume-up"></i> Audio:</strong>
-                                        {% if section.audio_file %}
-                                        <audio controls class="w-100">
-                                            <source src="{{ section.audio_file.url }}" type="audio/mpeg">
-                                        </audio>
-                                        {% elif section.audio_url %}
-                                        <a href="{{ section.audio_url }}" target="_blank">{{ section.audio_url }}</a>
-                                        {% endif %}
-                                    </div>
-                                    {% endif %}
-
-                                    <div class="mb-3">
-                                        <strong>Savol guruhlari:</strong>
-                                        <a href="{% url 'question_group_create' section.pk %}" class="btn btn-sm btn-primary ms-2">
-                                            <i class="bi bi-plus"></i> Guruh qo'shish
-                                        </a>
-                                    </div>
-
-                                    {% if section.question_groups.all %}
-                                    <div class="list-group">
-                                        {% for group in section.question_groups.all %}
-                                        <a href="{% url 'question_group_detail' group.pk %}" class="list-group-item list-group-item-action">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <strong>{{ group.title }}</strong>
-                                                    <br>
-                                                    <small class="text-muted">{{ group.get_question_type_display }}</small>
-                                                </div>
-                                                <i class="bi bi-chevron-right"></i>
-                                            </div>
-                                        </a>
-                                        {% endfor %}
-                                    </div>
-                                    {% else %}
-                                    <p class="text-muted">Hali guruhlar yo'q</p>
-                                    {% endif %}
-                                </div>
+                {% if sections %}
+                    {% for section in sections %}
+                    <div class="section-item">
+                        <div class="section-header">
+                            <h3 class="section-title">{{ section.title }}</h3>
+                            <div class="section-badges">
+                                <span class="badge badge-info">{{ section.get_module_display }}</span>
+                                <span class="badge badge-secondary">{{ section.question_groups.count }} guruh</span>
                             </div>
                         </div>
-                        {% endfor %}
+
+                        <div class="section-content">
+                            {% if section.passage_text %}
+                            <div class="passage-preview">
+                                {{ section.passage_text|truncatewords:50 }}
+                            </div>
+                            {% endif %}
+
+                            {% if section.audio_file or section.audio_url %}
+                            <audio controls class="audio-player">
+                                {% if section.audio_file %}
+                                <source src="{{ section.audio_file.url }}" type="audio/mpeg">
+                                {% elif section.audio_url %}
+                                <source src="{{ section.audio_url }}" type="audio/mpeg">
+                                {% endif %}
+                            </audio>
+                            {% endif %}
+
+                            <div style="margin-bottom: 12px;">
+                                <a href="{% url 'question_group_create' section.pk %}" class="btn-add" style="display: inline-flex;">
+                                    <i class="bi bi-plus"></i>
+                                    Guruh qo'shish
+                                </a>
+                            </div>
+
+                            {% if section.question_groups.all %}
+                            <div class="group-list">
+                                {% for group in section.question_groups.all %}
+                                <a href="{% url 'question_group_detail' group.pk %}" class="group-item">
+                                    <div class="group-info">
+                                        <strong>{{ group.title }}</strong>
+                                        <small>{{ group.get_question_type_display }}</small>
+                                    </div>
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="bi bi-inbox"></i>
+                                </div>
+                                <p class="empty-text">Hali guruhlar yo'q</p>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% else %}
-                    <div class="alert alert-info text-center">
-                        <i class="bi bi-info-circle"></i> Hozircha sectionlar yo'q. Yuqoridagi tugma orqali section qo'shing.
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-layers"></i>
                     </div>
-                    {% endif %}
+                    <p class="empty-text">Hozircha sectionlar yo'q. Yuqoridagi tugma orqali section qo'shing.</p>
                 </div>
+                {% endif %}
             </div>
         </div>
 
-        <div class="col-md-4">
-            <!-- Links -->
-            <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-link-45deg"></i> Linklar</h5>
-                    <a href="{% url 'generate_link' exam.pk %}" class="btn btn-sm btn-success">
-                        <i class="bi bi-plus-circle"></i> Yangi
+        <div>
+            <div class="links-card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-link-45deg"></i>
+                        Linklar
+                    </h2>
+                    <a href="{% url 'generate_link' exam.pk %}" class="btn-add">
+                        <i class="bi bi-plus-circle"></i>
+                        Yangi
                     </a>
                 </div>
-                <div class="card-body">
-                    {% if links %}
+
+                {% if links %}
                     {% for link in links %}
-                    <div class="exam-link mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <small class="text-muted">{{ link.created_at|date:"d.m.Y H:i" }}</small>
-                            {% if link.is_valid %}
-                            <span class="badge bg-success">Faol</span>
-                            {% else %}
-                            <span class="badge bg-danger">Nofaol</span>
-                            {% endif %}
+                    <div class="link-item">
+                        <div class="link-header">
+                            <span class="link-date">{{ link.created_at|date:"d.m.Y H:i" }}</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                {% if link.is_valid %}
+                                <span class="link-status active">Faol</span>
+                                {% else %}
+                                <span class="link-status inactive">Nofaol</span>
+                                {% endif %}
+                                <button onclick="confirmDelete(event, 'Bu linkni', '{% url 'delete_link' link.pk %}')" style="padding: 6px 10px; border: none; background: #fee2e2; color: #dc2626; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600;">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="input-group input-group-sm">
-                            <input type="text" class="form-control" value="{{ request.scheme }}://{{ request.get_host }}{% url 'exam_start' link.unique_token %}" id="link-{{ link.id }}" readonly>
-                            <button class="btn btn-outline-primary copy-btn" onclick="copyLink('link-{{ link.id }}')">
+                        <div class="link-input-group">
+                            <input type="text" class="link-input" value="{{ request.scheme }}://{{ request.get_host }}{% url 'exam_start' link.unique_token %}" id="link-{{ link.id }}" readonly>
+                            <button class="btn-copy" onclick="copyLink('link-{{ link.id }}')">
                                 <i class="bi bi-clipboard"></i>
                             </button>
                         </div>
-                        <small class="text-muted">
+                        <div class="link-usage">
                             Foydalanish: {{ link.use_count }}{% if link.max_uses %}/{{ link.max_uses }}{% endif %}
-                        </small>
+                            {% if link.resume_password %}
+                            <span style="margin-left: 12px; color: #4F46E5;">
+                                <i class="bi bi-shield-lock"></i> Parol: <strong>{{ link.resume_password }}</strong>
+                            </span>
+                            {% endif %}
+                        </div>
                     </div>
                     {% endfor %}
-                    {% else %}
-                    <p class="text-muted text-center">Linklar yo'q</p>
-                    {% endif %}
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-link-45deg"></i>
+                    </div>
+                    <p class="empty-text">Linklar yo'q</p>
                 </div>
+                {% endif %}
             </div>
 
-            <!-- Quick Info -->
-            <div class="card">
+            <div class="guide-card">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Qo'llanma</h6>
+                    <h2 class="card-title">
+                        <i class="bi bi-info-circle"></i>
+                        Qo'llanma
+                    </h2>
                 </div>
-                <div class="card-body">
-                    <ol class="small">
-                        <li>Section yarating (Reading, Listening, etc.)</li>
-                        <li>Section ichida savol guruhi yarating</li>
-                        <li>Guruh ichiga savollar qo'shing</li>
-                        <li>Link yaratib talabalar bilan ulashing</li>
-                    </ol>
-                </div>
+                <ol>
+                    <li>Section yarating (Reading, Listening, etc.)</li>
+                    <li>Section ichida savol guruhi yarating</li>
+                    <li>Guruh ichiga savollar qo'shing</li>
+                    <li>Link yaratib talabalar bilan ulashing</li>
+                </ol>
             </div>
         </div>
     </div>
@@ -187,8 +657,20 @@
 function copyLink(id) {
     const input = document.getElementById(id);
     input.select();
+    input.setSelectionRange(0, 99999);
     document.execCommand('copy');
-    alert('Link nusxalandi!');
+    
+    const button = input.nextElementSibling;
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i>';
+    button.style.background = '#10b981';
+    button.style.color = 'white';
+    
+    setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.style.background = '';
+        button.style.color = '';
+    }, 2000);
 }
 </script>
 {% endblock %}

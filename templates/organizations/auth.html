@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication - IELTS Mock Exam Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Left Side - Decorative Background */
+        .auth-left {
+            flex: 1;
+            background: #0a0a1f;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Ripple Grid Canvas */
+        .ripple-grid-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #rippleCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Gradient Overlay */
+        .gradient-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, rgba(10, 10, 31, 0.8) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Branding Content */
+        .branding-content {
+            position: relative;
+            z-index: 5;
+            max-width: 500px;
+            padding: 40px;
+            text-align: left;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .brand-badge i {
+            font-size: 12px;
+        }
+
+        .brand-title {
+            font-size: 48px;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .brand-title .highlight {
+            color: #22C55E;
+            display: block;
+        }
+
+        .brand-description {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        /* Tab Buttons on Left Side */
+        .tab-buttons {
+            position: absolute;
+            top: 50%;
+            right: -30px;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            border: none;
+            padding: 20px 50px 20px 35px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border-radius: 60px 50px 50px 60px;
+            min-width: 150px;
+            text-align: left;
+            box-shadow: none;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: #1e293b;
+            box-shadow: -4px 4px 16px rgba(0, 0, 0, 0.1), 
+                        -2px 2px 8px rgba(0, 0, 0, 0.06);
+            z-index: 2;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            box-shadow: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        /* Right Side - Forms */
+        .auth-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #ffffff;
+            overflow-y: auto;
+        }
+
+        .auth-form-container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .form-content {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .form-content.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.2);
+        }
+
+        .logo-icon i {
+            font-size: 28px;
+            color: white;
+        }
+
+        .form-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-subtitle {
+            font-size: 16px;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            z-index: 1;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            font-size: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #4F46E5;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-input:focus ~ .input-icon {
+            color: #4F46E5;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -12px;
+            margin-bottom: 24px;
+        }
+
+        .forgot-password a {
+            font-size: 14px;
+            color: #4F46E5;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #6366F1;
+        }
+
+        /* Remember Me Section */
+        .remember-me-section {
+            margin-bottom: 24px;
+        }
+
+        .remember-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .remember-checkbox input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            height: 20px;
+            width: 20px;
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkmark::after {
+            content: '';
+            display: none;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .remember-checkbox input:checked ~ .checkmark {
+            background-color: #4F46E5;
+            border-color: #4F46E5;
+        }
+
+        .remember-checkbox input:checked ~ .checkmark::after {
+            display: block;
+        }
+
+        .remember-checkbox:hover .checkmark {
+            border-color: #4F46E5;
+        }
+
+        .remember-text {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-submit:hover::before {
+            opacity: 1;
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-submit span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .field-error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .password-hint {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .auth-left {
+                min-height: 300px;
+                flex: 0;
+            }
+
+            .branding-content {
+                padding: 30px 20px;
+                max-width: 100%;
+            }
+
+            .brand-title {
+                font-size: 36px;
+            }
+
+            .brand-description {
+                font-size: 14px;
+            }
+
+            .tab-buttons {
+                position: absolute;
+                bottom: -15px;
+                right: auto;
+                left: 50%;
+                top: auto;
+                transform: translateX(-50%);
+                flex-direction: row;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .tab-btn {
+                border-radius: 25px 25px 0 0;
+                padding: 16px 35px;
+                min-width: 130px;
+                text-align: center;
+            }
+
+            .tab-btn.active {
+                box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1), 
+                            0 -2px 8px rgba(0, 0, 0, 0.06);
+            }
+
+            .tab-btn:hover:not(.active) {
+                box-shadow: none;
+            }
+
+            .auth-right {
+                padding: 40px 20px;
+            }
+
+            .form-title {
+                font-size: 28px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-form-container {
+                max-width: 100%;
+            }
+
+            .form-title {
+                font-size: 24px;
+            }
+
+            .form-subtitle {
+                font-size: 14px;
+            }
+
+            .tab-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Left Side - Decorative -->
+        <div class="auth-left">
+            <!-- Ripple Grid Canvas -->
+            <div class="ripple-grid-container">
+                <canvas id="rippleCanvas"></canvas>
+            </div>
+            <div class="gradient-overlay"></div>
+            
+            <!-- Branding Content -->
+            <div class="branding-content">
+                <div class="brand-badge">
+                    <i class="bi bi-circle-fill"></i>
+                    Mock Exam Platform
+                </div>
+                <h1 class="brand-title">
+                    <span class="highlight">Testium</span>
+                    The Ultimate Exam Platform
+                </h1>
+                <p class="brand-description">
+                    Help your students experience real exam conditions and get instant, accurate results with Testium.
+                </p>
+            </div>
+            
+            <!-- Tab Buttons -->
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('signin')">
+                    SIGN IN
+                </button>
+                <button class="tab-btn" onclick="switchTab('signup')">
+                    SIGN UP
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Side - Forms -->
+        <div class="auth-right">
+            <div class="auth-form-container">
+                
+                <!-- Sign In Form -->
+                <div id="signin-form" class="form-content active">
+                    <div class="logo-container">
+                        <div class="logo-icon">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </div>
+                        <h1 class="form-title">Sign In</h1>
+                        <p class="form-subtitle">Mock Exam Platform</p>
+                    </div>
+
+                    <form method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        
+                        {% if login_form.non_field_errors %}
+                        <div class="error-message">
+                            {{ login_form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label class="form-label" for="login_email">Email</label>
+                            <div class="input-wrapper">
+                                <input 
+                                    type="email" 
+                                    name="username" 
+                                    id="login_email" 
+                                    class="form-input" 
+                                    placeholder="Enter your email"
+                                    required
+                                    autocomplete="email"
+                                >
+                                <i class="bi bi-envelope input-icon"></i>
+                            </div>
+                            {% if login_form.username.errors %}
+                            <div class="field-error">{{ login_form.username.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="login_password">Password</label>
+                            <div class="input-wrapper">
+                                <input 
+                                    type="password" 
+                                    name="password" 
+                                    id="login_password" 
+                                    class="form-input" 
+                                    placeholder="Enter your password"
+                                    required
+                                    autocomplete="current-password"
+                                >
+                                <i class="bi bi-lock-fill input-icon"></i>
+                            </div>
+                            {% if login_form.password.errors %}
+                            <div class="field-error">{{ login_form.password.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="forgot-password">
+                            <a href="#">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <span>Sign In</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Sign Up Form -->
+                <div id="signup-form" class="form-content">
+                    <div class="logo-container">
+                        <div class="logo-icon">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+                        <h1 class="form-title">Create Account</h1>
+                        <p class="form-subtitle">Join our Mock Exam Platform</p>
+                    </div>
+
+                    <form method="post" action="{% url 'register' %}">
+                        {% csrf_token %}
+                        
+                        {% if register_form.non_field_errors %}
+                        <div class="error-message">
+                            {{ register_form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_full_name">Full Name</label>
+                            <div class="input-wrapper">
+                                <input 
+                                    type="text" 
+                                    name="full_name" 
+                                    id="id_full_name" 
+                                    class="form-input" 
+                                    placeholder="Enter your full name"
+                                    required
+                                    autocomplete="name"
+                                >
+                                <i class="bi bi-person input-icon"></i>
+                            </div>
+                            {% if register_form.full_name.errors %}
+                            <div class="field-error">{{ register_form.full_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="id_email">Email</label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="email" 
+                                        name="email" 
+                                        id="id_email" 
+                                        class="form-input" 
+                                        placeholder="your@email.com"
+                                        required
+                                        autocomplete="email"
+                                    >
+                                    <i class="bi bi-envelope input-icon"></i>
+                                </div>
+                                {% if register_form.email.errors %}
+                                <div class="field-error">{{ register_form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="id_phone">Phone Number</label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="tel" 
+                                        name="phone" 
+                                        id="id_phone" 
+                                        class="form-input" 
+                                        placeholder="+998 90 123 45 67"
+                                        required
+                                        autocomplete="tel"
+                                    >
+                                    <i class="bi bi-telephone input-icon"></i>
+                                </div>
+                                {% if register_form.phone.errors %}
+                                <div class="field-error">{{ register_form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="id_organization_name">Organization Name</label>
+                            <div class="input-wrapper">
+                                <input 
+                                    type="text" 
+                                    name="organization_name" 
+                                    id="id_organization_name" 
+                                    class="form-input" 
+                                    placeholder="Enter organization name"
+                                    required
+                                    autocomplete="organization"
+                                >
+                                <i class="bi bi-building input-icon"></i>
+                            </div>
+                            {% if register_form.organization_name.errors %}
+                            <div class="field-error">{{ register_form.organization_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="id_password1">Password</label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="password" 
+                                        name="password1" 
+                                        id="id_password1" 
+                                        class="form-input" 
+                                        placeholder="Create password"
+                                        required
+                                        autocomplete="new-password"
+                                    >
+                                    <i class="bi bi-lock-fill input-icon"></i>
+                                </div>
+                                {% if register_form.password1.errors %}
+                                <div class="field-error">{{ register_form.password1.errors }}</div>
+                                {% else %}
+                                <div class="password-hint">At least 8 characters</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="id_password2">Confirm Password</label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="password" 
+                                        name="password2" 
+                                        id="id_password2" 
+                                        class="form-input" 
+                                        placeholder="Confirm password"
+                                        required
+                                        autocomplete="new-password"
+                                    >
+                                    <i class="bi bi-shield-lock-fill input-icon"></i>
+                                </div>
+                                {% if register_form.password2.errors %}
+                                <div class="field-error">{{ register_form.password2.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="remember-me-section">
+                            <label class="remember-checkbox">
+                                <input type="checkbox" name="remember_me" id="remember_me_signup">
+                                <span class="checkmark"></span>
+                                <span class="remember-text">Remember me</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <span>Create Account</span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ripple Grid Animation
+        const canvas = document.getElementById('rippleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let mouseX = 0, mouseY = 0;
+        let ripples = [];
+        
+        const config = {
+            gridColor: '#5227FF',
+            gridSize: 40,
+            gridThickness: 2,
+            rippleIntensity: 0.05,
+            fadeDistance: 1.5,
+            glowIntensity: 0.1,
+            mouseInteractionRadius: 200
+        };
+        
+        function resize() {
+            width = canvas.offsetWidth;
+            height = canvas.offsetHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+        
+        function drawGrid() {
+            ctx.clearRect(0, 0, width, height);
+            
+            const rgb = hexToRgb(config.gridColor);
+            const baseAlpha = 0.3;
+            
+            // Draw vertical lines
+            for (let x = 0; x < width; x += config.gridSize) {
+                let alpha = baseAlpha;
+                
+                // Mouse interaction
+                const distX = Math.abs(mouseX - x);
+                if (distX < config.mouseInteractionRadius) {
+                    const influence = 1 - (distX / config.mouseInteractionRadius);
+                    alpha += influence * config.rippleIntensity * 3;
+                }
+                
+                // Ripple effect
+                ripples.forEach(ripple => {
+                    const dist = Math.abs(ripple.x - x);
+                    if (dist < ripple.radius) {
+                        const influence = 1 - (dist / ripple.radius);
+                        alpha += influence * ripple.intensity;
+                    }
+                });
+                
+                ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${Math.min(alpha, 0.8)})`;
+                ctx.lineWidth = config.gridThickness;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            
+            // Draw horizontal lines
+            for (let y = 0; y < height; y += config.gridSize) {
+                let alpha = baseAlpha;
+                
+                // Mouse interaction
+                const distY = Math.abs(mouseY - y);
+                if (distY < config.mouseInteractionRadius) {
+                    const influence = 1 - (distY / config.mouseInteractionRadius);
+                    alpha += influence * config.rippleIntensity * 3;
+                }
+                
+                // Ripple effect
+                ripples.forEach(ripple => {
+                    const dist = Math.abs(ripple.y - y);
+                    if (dist < ripple.radius) {
+                        const influence = 1 - (dist / ripple.radius);
+                        alpha += influence * ripple.intensity;
+                    }
+                });
+                
+                ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${Math.min(alpha, 0.8)})`;
+                ctx.lineWidth = config.gridThickness;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            // Update ripples
+            ripples = ripples.filter(ripple => {
+                ripple.radius += 3;
+                ripple.intensity *= 0.95;
+                return ripple.intensity > 0.01;
+            });
+        }
+        
+        function animate() {
+            drawGrid();
+            requestAnimationFrame(animate);
+        }
+        
+        // Mouse move handler
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+        
+        // Click handler for ripples
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            ripples.push({
+                x: e.clientX - rect.left,
+                y: e.clientY - rect.top,
+                radius: 0,
+                intensity: config.rippleIntensity * 10
+            });
+        });
+        
+        // Initialize
+        window.addEventListener('resize', resize);
+        resize();
+        animate();
+        
+        // Tab switching function
+        function switchTab(tab) {
+            // Update tab buttons
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Update forms
+            const forms = document.querySelectorAll('.form-content');
+            forms.forEach(form => form.classList.remove('active'));
+            
+            if (tab === 'signin') {
+                tabButtons[0].classList.add('active');
+                document.getElementById('signin-form').classList.add('active');
+            } else {
+                tabButtons[1].classList.add('active');
+                document.getElementById('signup-form').classList.add('active');
+            }
+        }
+
+        // Check URL parameters to show correct form
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            if (tab === 'signup') {
+                switchTab('signup');
+            }
+        });
+    </script>
+</body>
+</html>

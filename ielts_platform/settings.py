@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'exams',
     'students',
     'results',
+    'support',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +55,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'organizations.context_processors.organization_settings',
             ],
         },
     },
@@ -93,8 +95,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # File upload settings
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -111,10 +113,16 @@ if not DEBUG:
 # Custom User Model
 AUTH_USER_MODEL = 'organizations.Organization'
 
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'organizations.backends.EmailBackend',  # Custom email authentication
+    'django.contrib.auth.backends.ModelBackend',  # Fallback to default
+]
+
 # Login URLs
-LOGIN_URL = '/login/'
+LOGIN_URL = '/auth/'
 LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/auth/'
 
 # Jazzmin Admin Theme
 JAZZMIN_SETTINGS = {

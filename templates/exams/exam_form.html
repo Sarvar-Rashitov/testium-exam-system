@@ -1,52 +1,244 @@
 {% extends 'base.html' %}
-{% block title %}{{ title }} - IELTS Mock Exam{% endblock %}
+{% block title %}{{ title }} - Testium{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .form-header {
+        margin-bottom: 32px;
+    }
+
+    .form-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+        font-size: 15px;
+        color: #6b7280;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .form-label .required {
+        color: #dc2626;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        font-size: 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        outline: none;
+    }
+
+    .form-control:focus {
+        border-color: #4F46E5;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px;
+        background: #f9fafb;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .form-check:hover {
+        background: #f3f4f6;
+    }
+
+    .form-check input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #4F46E5;
+    }
+
+    .form-check-label {
+        font-size: 15px;
+        font-weight: 500;
+        color: #1f2937;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        color: #4F46E5;
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .form-help {
+        font-size: 13px;
+        color: #6b7280;
+        margin-top: 6px;
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 20px;
+        }
+
+        .form-card {
+            padding: 24px;
+        }
+
+        .form-title {
+            font-size: 24px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">{{ title }}</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Imtihon nomi *</label>
-                            {{ form.title }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Tavsif</label>
-                            {{ form.description }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Davomiyligi (daqiqalarda) *</label>
-                            {{ form.duration }}
-                        </div>
-
-                        <div class="mb-3 form-check">
-                            {{ form.is_active }}
-                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
-                                Faol
-                            </label>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a href="{% if exam %}{% url 'exam_detail' exam.pk %}{% else %}{% url 'exam_list' %}{% endif %}" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Bekor qilish
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Saqlash
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="page-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h1 class="form-title">{{ title }}</h1>
+            <p class="form-subtitle">Imtihon ma'lumotlarini kiriting</p>
         </div>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label">
+                    Imtihon nomi <span class="required">*</span>
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                <div class="form-help" style="color: #dc2626;">{{ form.title.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Tavsif</label>
+                {{ form.description }}
+                <div class="form-help">Imtihon haqida qisqacha ma'lumot</div>
+                {% if form.description.errors %}
+                <div class="form-help" style="color: #dc2626;">{{ form.description.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Davomiyligi (daqiqalarda) <span class="required">*</span>
+                </label>
+                {{ form.duration }}
+                <div class="form-help">Imtihon uchun ajratilgan vaqt</div>
+                {% if form.duration.errors %}
+                <div class="form-help" style="color: #dc2626;">{{ form.duration.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    {{ form.is_active }}
+                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                        Imtihonni faol qilish
+                    </label>
+                </div>
+                <div class="form-help">Faol imtihonlar talabalar tomonidan topshirilishi mumkin</div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{% if exam %}{% url 'exam_detail' exam.pk %}{% else %}{% url 'exam_list' %}{% endif %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Bekor qilish
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i>
+                    Saqlash
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
