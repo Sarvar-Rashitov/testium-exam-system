@@ -495,7 +495,168 @@
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
 }
+
+/* Fullscreen Modal */
+.fullscreen-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.fullscreen-modal.show {
+    display: flex;
+}
+
+.fullscreen-modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 48px;
+    max-width: 550px;
+    width: 90%;
+    text-align: center;
+    animation: scaleIn 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 28px;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(30, 64, 175, 0.3);
+}
+
+.modal-icon i {
+    font-size: 44px;
+    color: white;
+}
+
+.modal-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 14px;
+}
+
+.modal-text {
+    font-size: 15px;
+    color: #6b7280;
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+.modal-warning {
+    background: #fef3c7;
+    border: 2px solid #fbbf24;
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 36px;
+}
+
+.modal-warning i {
+    font-size: 22px;
+    color: #f59e0b;
+    flex-shrink: 0;
+}
+
+.modal-warning span {
+    font-size: 14px;
+    color: #92400e;
+    font-weight: 500;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-fullscreen {
+    width: 100%;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    box-shadow: 0 4px 16px rgba(30, 64, 175, 0.3);
+}
+
+.btn-fullscreen:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(30, 64, 175, 0.4);
+}
+
+.btn-fullscreen i {
+    font-size: 20px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 </style>
+
+<!-- Fullscreen Modal -->
+<div id="fullscreenModal" class="fullscreen-modal show">
+    <div class="fullscreen-modal-content">
+        <div class="modal-icon">
+            <i class="bi bi-arrows-fullscreen"></i>
+        </div>
+        <h2 class="modal-title">Enable Fullscreen Mode</h2>
+        <p class="modal-text">
+            For the best exam experience and to prevent distractions, please enable fullscreen mode before starting.
+        </p>
+        <div class="modal-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>Exiting fullscreen during the exam will be recorded and may affect your results</span>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-fullscreen" onclick="enableFullscreenAndStart()">
+                <i class="bi bi-arrows-fullscreen"></i>
+                Enable Fullscreen & Start
+            </button>
+        </div>
+    </div>
+</div>
 
 <div class="exam-timer">
     <div class="timer-content">
@@ -709,9 +870,100 @@ let timeLeft = duration;
 let tabSwitches = 0;
 let startedAt = new Date().toISOString();
 document.getElementById('startedAt').value = startedAt;
-let examStarted = true;
+let examStarted = false; // Start as false until fullscreen is enabled
 let isBlocked = false;
 const resumePasswordCorrect = '{{ exam_link.resume_password }}';
+
+// Enable fullscreen and start exam
+function enableFullscreenAndStart() {
+    const elem = document.documentElement;
+    
+    // Request fullscreen
+    const fullscreenPromise = elem.requestFullscreen ? elem.requestFullscreen() :
+                             elem.webkitRequestFullscreen ? elem.webkitRequestFullscreen() :
+                             elem.msRequestFullscreen ? elem.msRequestFullscreen() : null;
+    
+    if (fullscreenPromise) {
+        fullscreenPromise.then(() => {
+            // Hide modal
+            document.getElementById('fullscreenModal').classList.remove('show');
+            // Start exam
+            examStarted = true;
+            startedAt = new Date().toISOString();
+            document.getElementById('startedAt').value = startedAt;
+        }).catch((err) => {
+            console.error('Fullscreen error:', err);
+            // If fullscreen fails, still allow exam to start
+            document.getElementById('fullscreenModal').classList.remove('show');
+            examStarted = true;
+            startedAt = new Date().toISOString();
+            document.getElementById('startedAt').value = startedAt;
+        });
+    } else {
+        // Fallback if fullscreen API not supported
+        document.getElementById('fullscreenModal').classList.remove('show');
+        examStarted = true;
+        startedAt = new Date().toISOString();
+        document.getElementById('startedAt').value = startedAt;
+    }
+}
+
+// Monitor fullscreen changes
+document.addEventListener('fullscreenchange', handleFullscreenChange);
+document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+function handleFullscreenChange() {
+    const isFullscreen = document.fullscreenElement || 
+                        document.webkitFullscreenElement || 
+                        document.mozFullScreenElement || 
+                        document.msFullscreenElement;
+    
+    // Only enforce fullscreen if exam is still running (not submitted)
+    if (!isFullscreen && examStarted && !isBlocked) {
+        // User exited fullscreen during exam
+        tabSwitches++;
+        document.getElementById('tabSwitches').value = tabSwitches;
+        
+        showWarning(
+            'Fullscreen dan chiqdingiz!', 
+            'Imtihon davomida fullscreen rejimidan chiqish qoidabuzarlik hisoblanadi. Bu harakat qayd etildi. Iltimos, qaytadan fullscreen rejimiga o\'ting.'
+        );
+        
+        // Immediately try to re-enter fullscreen
+        reenterFullscreen();
+    }
+}
+
+// Function to re-enter fullscreen
+function reenterFullscreen() {
+    if (examStarted && !isBlocked) {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(err => console.log('Could not re-enter fullscreen:', err));
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+            elem.msRequestFullscreen();
+        }
+    }
+}
+
+// Continuous fullscreen monitoring - check every 500ms
+setInterval(() => {
+    if (examStarted && !isBlocked) {
+        const isFullscreen = document.fullscreenElement || 
+                            document.webkitFullscreenElement || 
+                            document.mozFullScreenElement || 
+                            document.msFullscreenElement;
+        
+        if (!isFullscreen) {
+            // Silently try to re-enter fullscreen
+            reenterFullscreen();
+        }
+    }
+}, 500);
 
 // Check if page was refreshed during exam
 window.addEventListener('load', function() {
@@ -848,8 +1100,44 @@ window.addEventListener('beforeunload', function (e) {
     }
 });
 
-// Prevent F5 and Ctrl+R
+// Prevent F5, Ctrl+R, and ESC
 document.addEventListener('keydown', function(e) {
+    // ESC key - prevent exiting fullscreen
+    if (e.keyCode === 27 || e.key === 'Escape') {
+        if (examStarted && !isBlocked) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            showWarning('ESC tugmasi bloklangan', 'Imtihon davomida fullscreen rejimidan chiqish mumkin emas. Bu harakat qayd etiladi.');
+            
+            // Track ESC attempt
+            tabSwitches++;
+            document.getElementById('tabSwitches').value = tabSwitches;
+            
+            // Force fullscreen if somehow exited
+            setTimeout(() => {
+                const isFullscreen = document.fullscreenElement || 
+                                    document.webkitFullscreenElement || 
+                                    document.mozFullScreenElement || 
+                                    document.msFullscreenElement;
+                
+                if (!isFullscreen && examStarted) {
+                    const elem = document.documentElement;
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+                    } else if (elem.webkitRequestFullscreen) {
+                        elem.webkitRequestFullscreen();
+                    } else if (elem.msRequestFullscreen) {
+                        elem.msRequestFullscreen();
+                    }
+                }
+            }, 100);
+            
+            return false;
+        }
+    }
+    
     // F5
     if (e.keyCode === 116 || e.key === 'F5') {
         e.preventDefault();
@@ -868,7 +1156,17 @@ document.addEventListener('keydown', function(e) {
             showWarning('Sahifani yangilab bo\'lmaydi', 'Imtihon davomida sahifani yangilash mumkin emas. Imtihonni yakunlasangiz bo\'ladi.');
         }
     }
-});
+}, true); // Use capture phase
+
+// Also prevent on keyup to be extra safe
+document.addEventListener('keyup', function(e) {
+    if ((e.keyCode === 27 || e.key === 'Escape') && examStarted && !isBlocked) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        return false;
+    }
+}, true);
 
 // Warning modal
 function showWarning(title, message) {
@@ -1011,6 +1309,9 @@ function submitExam(autoSubmit = false) {
         started_at: startedAt
     };
     
+    // Exit fullscreen before submitting
+    exitFullscreen();
+    
     fetch('{% url "submit_exam" %}', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
@@ -1019,7 +1320,10 @@ function submitExam(autoSubmit = false) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            window.location.href = '/results/' + data.result_id + '/';
+            // Ensure fullscreen is exited before redirect
+            setTimeout(() => {
+                window.location.href = '/results/' + data.result_id + '/';
+            }, 300);
         } else {
             alert('Xatolik: ' + data.error);
         }
@@ -1027,6 +1331,19 @@ function submitExam(autoSubmit = false) {
     .catch(err => {
         alert('Xatolik yuz berdi: ' + err.message);
     });
+}
+
+// Function to exit fullscreen
+function exitFullscreen() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    }
 }
 </script>
             alert('Xatolik: ' + data.error);
