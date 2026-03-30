@@ -554,6 +554,27 @@ def exam_start_view(request, token):
     if not exam_link.is_valid():
         return render(request, 'exams/link_expired.html', {'exam_link': exam_link})
     
+    # Count total questions
+    total_questions = 0
+    for section in exam_link.exam.sections.all():
+        for group in section.question_groups.all():
+            if group.question_type == 'multiple_choice_single':
+                total_questions += group.multiplechoicesinglequestion_set.count()
+            elif group.question_type == 'multiple_choice_multiple':
+                total_questions += group.multiplechoicemultiplequestion_set.count()
+            elif group.question_type == 'true_false_ng':
+                total_questions += group.truefalsenotgivenquestion_set.count()
+            elif group.question_type == 'yes_no_ng':
+                total_questions += group.yesnonotgivenquestion_set.count()
+            elif group.question_type == 'sentence_completion':
+                total_questions += group.sentencecompletionquestion_set.count()
+            elif group.question_type == 'short_answer':
+                total_questions += group.shortanswerquestion_set.count()
+            elif group.question_type == 'diagram_labeling':
+                total_questions += group.diagramlabelingquestion_set.count()
+            elif group.question_type == 'summary_completion':
+                total_questions += group.summarycompletionquestion_set.count()
+    
     if request.method == 'POST':
         form = StudentRegistrationForm(request.POST, organization=exam_link.exam.organization)
         if form.is_valid():
@@ -567,7 +588,8 @@ def exam_start_view(request, token):
     return render(request, 'exams/exam_start.html', {
         'form': form,
         'exam': exam_link.exam,
-        'exam_link': exam_link
+        'exam_link': exam_link,
+        'total_questions': total_questions
     })
 
 
