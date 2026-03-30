@@ -17,6 +17,7 @@ urlpatterns = [
     path('', include('organizations.urls_mvt')),
     path('', include('exams.urls_mvt')),
     path('results/', include('results.urls_mvt')),
+    path('students/', include('students.urls')),
     path('support/', include('support.urls')),
 ]
 

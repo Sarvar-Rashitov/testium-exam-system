@@ -221,6 +221,23 @@
         display: block;
     }
 
+    .phone-first-field {
+        display: none;
+        animation: slideDown 0.3s ease;
+    }
+
+    .phone-first-field.show {
+        display: block;
+    }
+
+    #regularFormFields {
+        display: block;
+    }
+
+    #regularFormFields.hidden {
+        display: none;
+    }
+
     @keyframes slideDown {
         from {
             opacity: 0;
@@ -467,6 +484,49 @@
         <form method="post" id="studentForm">
             {% csrf_token %}
             
+            <!-- Previous Exam Question -->
+            <div class="form-group">
+                <label class="form-label">
+                    Have you taken an exam before? <span class="required">*</span>
+                </label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" 
+                               name="has_taken_before" 
+                               id="has_taken_yes" 
+                               value="yes"
+                               onchange="togglePhoneFirst()">
+                        <label for="has_taken_yes">Yes, I have</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" 
+                               name="has_taken_before" 
+                               id="has_taken_no" 
+                               value="no"
+                               checked
+                               onchange="togglePhoneFirst()">
+                        <label for="has_taken_no">No, first time</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phone First (for returning students) -->
+            <div class="form-group phone-first-field" id="phoneFirstField">
+                <label class="form-label">
+                    Enter your phone number <span class="required">*</span>
+                </label>
+                <input type="tel" 
+                       name="phone_first" 
+                       id="phoneFirstInput"
+                       class="form-control" 
+                       placeholder="+998 90 123 45 67">
+                <small style="display: block; margin-top: 6px; font-size: 12px; color: #6b7280;">
+                    <i class="bi bi-info-circle"></i> Your information will be filled automatically
+                </small>
+            </div>
+
+            <!-- Regular Form Fields -->
+            <div id="regularFormFields">
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">
@@ -550,6 +610,7 @@
                 </label>
                 {{ form.teacher }}
             </div>
+            </div>
 
             <!-- System Requirements -->
             <div class="requirements-section">
@@ -601,6 +662,174 @@
 </div>
 
 <script>
+// Debounce function to limit API calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Toggle phone first field based on previous exam question
+function togglePhoneFirst() {
+    const hasTakenYes = document.getElementById('has_taken_yes');
+    const phoneFirstField = document.getElementById('phoneFirstField');
+    const regularFormFields = document.getElementById('regularFormFields');
+    
+    if (hasTakenYes && hasTakenYes.checked) {
+        phoneFirstField.classList.add('show');
+        regularFormFields.classList.add('hidden');
+    } else {
+        phoneFirstField.classList.remove('show');
+        regularFormFields.classList.remove('hidden');
+        // Clear phone first input
+        const phoneFirstInput = document.getElementById('phoneFirstInput');
+        if (phoneFirstInput) {
+            phoneFirstInput.value = '';
+        }
+        // Clear all form fields
+        clearFormFields();
+    }
+}
+
+// Clear all form fields
+function clearFormFields() {
+    document.querySelector('input[name="first_name"]').value = '';
+    document.querySelector('input[name="last_name"]').value = '';
+    document.querySelector('input[name="phone"]').value = '';
+    document.querySelector('input[name="telegram_username"]').value = '';
+    document.querySelector('input[name="email"]').value = '';
+}
+
+// Check if student exists by phone number
+async function checkStudentByPhone(phone) {
+    // Clean phone number (remove spaces and special characters)
+    const cleanPhone = phone.replace(/\s+/g, '').trim();
+    
+    if (cleanPhone.length < 9) {
+        return; // Don't check if phone is too short
+    }
+    
+    try {
+        const response = await fetch(`/students/api/check-phone/?phone=${encodeURIComponent(cleanPhone)}`);
+        const data = await response.json();
+        
+        if (data.exists) {
+            // Show regular form fields
+            const regularFormFields = document.getElementById('regularFormFields');
+            regularFormFields.classList.remove('hidden');
+            
+            // Fill in the form fields with smooth animation
+            const firstNameInput = document.querySelector('input[name="first_name"]');
+            const lastNameInput = document.querySelector('input[name="last_name"]');
+            const phoneInput = document.querySelector('input[name="phone"]');
+            const telegramInput = document.querySelector('input[name="telegram_username"]');
+            const emailInput = document.querySelector('input[name="email"]');
+            
+            // Add highlight animation
+            [firstNameInput, lastNameInput, phoneInput, telegramInput, emailInput].forEach(input => {
+                if (input) {
+                    input.style.transition = 'all 0.3s ease';
+                    input.style.background = '#f0fdf4';
+                    input.style.borderColor = '#10b981';
+                }
+            });
+            
+            // Fill values
+            firstNameInput.value = data.first_name;
+            lastNameInput.value = data.last_name;
+            phoneInput.value = phone; // Use the original phone input
+            telegramInput.value = data.telegram_username;
+            emailInput.value = data.email;
+            
+            // Set student type
+            const studentTypeRadio = document.getElementById(`student_type_${data.student_type}`);
+            if (studentTypeRadio) {
+                studentTypeRadio.checked = true;
+                toggleTeacherField();
+            }
+            
+            // Set teacher if exists
+            if (data.teacher_id) {
+                const teacherSelect = document.querySelector('select[name="teacher"]');
+                if (teacherSelect) {
+                    teacherSelect.value = data.teacher_id;
+                }
+            }
+            
+            // Remove highlight after 2 seconds
+            setTimeout(() => {
+                [firstNameInput, lastNameInput, phoneInput, telegramInput, emailInput].forEach(input => {
+                    if (input) {
+                        input.style.background = '';
+                        input.style.borderColor = '';
+                    }
+                });
+            }, 2000);
+            
+            // Show a subtle notification
+            showNotification('Welcome back! Your information has been found ✓', 'success');
+        } else {
+            // Student not found - show form for new registration
+            const regularFormFields = document.getElementById('regularFormFields');
+            regularFormFields.classList.remove('hidden');
+            
+            // Copy phone to main phone field
+            const phoneInput = document.querySelector('input[name="phone"]');
+            phoneInput.value = phone;
+            
+            showNotification('Phone number not found. Please fill in your information', 'info');
+        }
+    } catch (error) {
+        console.error('Error checking student:', error);
+        showNotification('An error occurred. Please try again', 'error');
+    }
+}
+
+// Debounced version of the check function
+const debouncedCheckStudent = debounce(checkStudentByPhone, 500);
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Remove existing notification if any
+    const existingNotif = document.querySelector('.auto-fill-notification');
+    if (existingNotif) {
+        existingNotif.remove();
+    }
+    
+    const notification = document.createElement('div');
+    notification.className = `auto-fill-notification ${type}`;
+    
+    let icon = 'bi-info-circle-fill';
+    let color = '#3b82f6';
+    
+    if (type === 'success') {
+        icon = 'bi-check-circle-fill';
+        color = '#10b981';
+    } else if (type === 'error') {
+        icon = 'bi-x-circle-fill';
+        color = '#ef4444';
+    }
+    
+    notification.innerHTML = `
+        <i class="bi ${icon}" style="color: ${color};"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 4000);
+}
+
 function toggleTeacherField() {
     const institutionRadio = document.getElementById('student_type_institution');
     const teacherField = document.getElementById('teacherField');
@@ -622,7 +851,76 @@ function toggleSubmitButton() {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     toggleTeacherField();
+    togglePhoneFirst();
+    
+    // Add event listener to phone first input (for returning students)
+    const phoneFirstInput = document.getElementById('phoneFirstInput');
+    if (phoneFirstInput) {
+        phoneFirstInput.addEventListener('input', function(e) {
+            debouncedCheckStudent(e.target.value);
+        });
+    }
 });
 </script>
+
+<style>
+.auto-fill-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+    max-width: 400px;
+}
+
+.auto-fill-notification i {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.auto-fill-notification span {
+    font-size: 14px;
+    color: #1f2937;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .auto-fill-notification {
+        left: 16px;
+        right: 16px;
+        max-width: none;
+    }
+}
+</style>
 </body>
 </html>

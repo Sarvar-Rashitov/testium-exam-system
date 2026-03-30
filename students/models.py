@@ -4,8 +4,8 @@ from django.db import models
 class Student(models.Model):
     """Student model - no authentication required"""
     STUDENT_TYPE_CHOICES = [
-        ('institution', 'Muassasa o\'quvchisi'),
-        ('external', 'Tashqi o\'quvchi'),
+        ('institution', 'Institution Student'),
+        ('external', 'External Student'),
     ]
     
     first_name = models.CharField(max_length=100)
