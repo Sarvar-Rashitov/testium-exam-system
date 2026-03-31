@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ exam.title }} - Imtihon</title>
+    <title>{{ exam.title }} - Exam</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 <style>
     * {
@@ -14,65 +14,79 @@
 
     body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: #f8f9fc;
+        background: #f5f7fa;
+        overflow: hidden;
+        height: 100vh;
     }
 
-    .exam-timer {
+    /* Header */
+    .exam-header {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
+        height: 70px;
         background: white;
-        border-bottom: 2px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
         z-index: 1000;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .timer-content {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 16px 32px;
-        max-width: 1400px;
-        margin: 0 auto;
+        justify-content: space-between;
+        padding: 0 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
-    .timer-info {
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .ielts-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #1e40af, #3b82f6);
+        border-radius: 8px;
+        color: white;
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .exam-id {
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .header-center {
         display: flex;
         align-items: center;
         gap: 16px;
     }
 
-    .exam-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .student-name {
-        font-size: 14px;
-        color: #6b7280;
-    }
-
     .timer-display {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 12px 24px;
+        gap: 10px;
+        padding: 10px 20px;
         background: #f9fafb;
-        border-radius: 12px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
     }
 
     .timer-icon {
-        font-size: 24px;
-        color: #4F46E5;
+        font-size: 20px;
+        color: #3b82f6;
     }
 
     .timer-text {
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 700;
         color: #1f2937;
         font-family: 'Courier New', monospace;
+        min-width: 80px;
     }
 
     .timer-text.warning {
@@ -85,103 +99,1057 @@
         50% { opacity: 0.6; }
     }
 
-    .question-count {
-        padding: 8px 16px;
-        background: #dbeafe;
-        color: #1e40af;
-        border-radius: 50px;
-        font-size: 14px;
+    .btn-start {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #10b981, #22c55e);
+        color: white;
+        border: none;
+        border-radius: 8px;
         font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
     }
 
-    .progress-bar-container {
-        height: 4px;
-        background: #e5e7eb;
+    .btn-start:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
-    .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #4F46E5, #dc2626);
-        transition: width 0.3s ease;
-    }
-
-    .exam-content {
-        margin-top: 90px;
-        padding: 32px;
-        max-width: 1400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .content-grid {
-        display: grid;
-        grid-template-columns: 1fr 300px;
-        gap: 24px;
-    }
-
-    .section-card {
-        background: white;
-        border-radius: 20px;
-        padding: 32px;
-        margin-bottom: 24px;
-        border: 1px solid #e5e7eb;
-    }
-
-    .section-header {
+    .header-right {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 20px 24px;
-        background: linear-gradient(135deg, #4F46E5, #6366F1);
-        color: white;
-        border-radius: 16px 16px 0 0;
-        margin: -32px -32px 24px -32px;
     }
 
-    .section-title {
-        font-size: 22px;
-        font-weight: 700;
-        flex: 1;
+    .icon-btn {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #e5e7eb;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
     }
 
-    .section-badge {
-        padding: 6px 12px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    .passage-box {
+    .icon-btn:hover {
         background: #f9fafb;
-        border: 2px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
-        max-height: 400px;
-        overflow-y: auto;
+        border-color: #3b82f6;
     }
 
-    .passage-title {
+    .icon-btn i {
+        font-size: 18px;
+        color: #6b7280;
+    }
+
+    .icon-btn:hover i {
+        color: #3b82f6;
+    }
+
+    /* Highlight Toolbar */
+    .highlight-toolbar {
+        position: fixed;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 8px;
+        display: none;
+        z-index: 2000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        gap: 4px;
+    }
+
+    .highlight-toolbar.show {
+        display: flex;
+    }
+
+    .highlight-btn {
+        width: 32px;
+        height: 32px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .highlight-btn:hover {
+        transform: scale(1.1);
+    }
+
+    .highlight-btn.yellow {
+        background: #fef08a;
+    }
+
+    .highlight-btn.remove {
+        background: white;
+    }
+
+    .highlight-btn.remove i {
+        color: #ef4444;
+    }
+
+    .highlight-btn.add-note {
+        background: #dbeafe;
+    }
+
+    .highlight-btn.add-note i {
+        color: #1e40af;
+    }
+
+    /* Hide buttons based on mode */
+    .highlight-toolbar[data-mode="text-selected"] .btn-remove-highlight {
+        display: none;
+    }
+
+    .highlight-toolbar[data-mode="highlight-clicked"] .btn-highlight-yellow {
+        display: none;
+    }
+
+    /* Highlight flash animation */
+    @keyframes highlight-flash {
+        0%, 100% { background: #f9fafb; }
+        50% { background: #dbeafe; }
+    }
+
+    /* Settings Modal */
+    .settings-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 3000;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .settings-modal.show {
+        display: flex;
+    }
+
+    .settings-modal-content {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: scaleIn 0.3s ease;
+    }
+
+    .settings-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .settings-modal-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-close-modal {
+        width: 36px;
+        height: 36px;
+        border: 1px solid #e5e7eb;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .btn-close-modal:hover {
+        background: #f9fafb;
+        border-color: #d1d5db;
+    }
+
+    .settings-section {
+        margin-bottom: 28px;
+    }
+
+    .settings-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .settings-label {
         font-size: 16px;
         font-weight: 600;
         color: #1f2937;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    .audio-box {
+    .settings-description {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 12px;
+    }
+
+    .contrast-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .contrast-option {
+        padding: 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .contrast-option:hover {
+        border-color: #3b82f6;
+        background: #f9fafb;
+    }
+
+    .contrast-option.active {
+        border-color: #3b82f6;
         background: #eff6ff;
-        border: 2px solid #dbeafe;
-        border-radius: 16px;
+    }
+
+    .contrast-preview {
+        width: 100%;
+        height: 60px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .contrast-preview.normal {
+        background: white;
+        color: #1f2937;
+        border: 1px solid #e5e7eb;
+    }
+
+    .contrast-preview.high {
+        background: #000000;
+        color: #ffffff;
+    }
+
+    .contrast-preview.yellow {
+        background: #1f2937;
+        color: #fbbf24;
+    }
+
+    .contrast-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #4b5563;
+    }
+
+    .text-size-control {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .text-size-slider {
+        flex: 1;
+        height: 6px;
+        border-radius: 3px;
+        background: #e5e7eb;
+        outline: none;
+        -webkit-appearance: none;
+    }
+
+    .text-size-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .text-size-slider::-webkit-slider-thumb:hover {
+        background: #2563eb;
+        transform: scale(1.1);
+    }
+
+    .text-size-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .text-size-slider::-moz-range-thumb:hover {
+        background: #2563eb;
+        transform: scale(1.1);
+    }
+
+    .text-size-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #3b82f6;
+        min-width: 50px;
+        text-align: center;
+    }
+
+    .text-size-preview {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 12px;
+        text-align: center;
+    }
+
+    .text-size-preview-text {
+        color: #1f2937;
+        line-height: 1.6;
+        transition: font-size 0.2s;
+    }
+
+    /* Contrast themes */
+    body.contrast-high {
+        background: #000000;
+    }
+
+    /* Main containers - pure black */
+    body.contrast-high .exam-header,
+    body.contrast-high .passage-panel,
+    body.contrast-high .questions-panel,
+    body.contrast-high .bottom-nav,
+    body.contrast-high .notes-panel,
+    body.contrast-high .settings-modal-content {
+        background: #000000;
+        border-color: #2a2a2a;
+    }
+
+    /* Question items and form elements - dark gray */
+    body.contrast-high .question-item {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .form-check {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    /* Input fields - black background */
+    body.contrast-high .form-control,
+    body.contrast-high .note-comment-input {
+        background: #000000;
+        border: 1px solid #2a2a2a;
+        color: #ffffff;
+    }
+
+    body.contrast-high .form-control::placeholder,
+    body.contrast-high .note-comment-input::placeholder {
+        color: #666666;
+    }
+
+    /* Navigation buttons - dark gray */
+    body.contrast-high .nav-btn {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+        color: #ffffff;
+    }
+
+    body.contrast-high .nav-btn.answered {
+        background: #2a2a2a;
+        border-color: #3a3a3a;
+    }
+
+    body.contrast-high .nav-btn.active {
+        background: #3a3a3a;
+        border-color: #4a4a4a;
+    }
+
+    /* Part tabs - dark gray */
+    body.contrast-high .part-tab {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+        color: #ffffff;
+    }
+
+    body.contrast-high .part-tab.active {
+        background: #3a3a3a;
+        border-color: #4a4a4a;
+    }
+
+    /* Icon buttons and badges */
+    body.contrast-high .icon-btn {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .icon-btn i {
+        color: #ffffff;
+    }
+
+    body.contrast-high .ielts-badge {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+    }
+
+    body.contrast-high .timer-display {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .timer-icon {
+        color: #ffffff;
+    }
+
+    /* Question badges */
+    body.contrast-high .question-number {
+        background: #2a2a2a;
+        color: #ffffff;
+    }
+
+    body.contrast-high .question-points {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        color: #ffffff;
+    }
+
+    /* Audio player */
+    body.contrast-high .audio-player {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    /* Notes panel */
+    body.contrast-high .note-item {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .note-quote {
+        background: #000000;
+        border-left-color: #ffffff;
+    }
+
+    body.contrast-high .notes-header,
+    body.contrast-high .notes-footer {
+        border-color: #2a2a2a;
+    }
+
+    /* Settings modal */
+    body.contrast-high .settings-modal-header {
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .contrast-preview,
+    body.contrast-high .text-size-preview {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .contrast-option {
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .contrast-option:hover,
+    body.contrast-high .contrast-option.active {
+        border-color: #ffffff;
+    }
+
+    /* ALL TEXT - pure white */
+    body.contrast-high .passage-title,
+    body.contrast-high .passage-subtitle,
+    body.contrast-high .passage-content,
+    body.contrast-high .passage-content p,
+    body.contrast-high .questions-title,
+    body.contrast-high .questions-instructions,
+    body.contrast-high .question-text,
+    body.contrast-high .form-check-label,
+    body.contrast-high .exam-id,
+    body.contrast-high .timer-text,
+    body.contrast-high .note-comment,
+    body.contrast-high .notes-title,
+    body.contrast-high .audio-title,
+    body.contrast-high .settings-modal-title,
+    body.contrast-high .settings-label,
+    body.contrast-high .settings-description,
+    body.contrast-high .contrast-name,
+    body.contrast-high .text-size-value,
+    body.contrast-high .text-size-preview-text,
+    body.contrast-high .notes-info,
+    body.contrast-high .note-timestamp,
+    body.contrast-high .ielts-badge,
+    body.contrast-high .btn-close-notes i,
+    body.contrast-high .btn-close-modal i {
+        color: #ffffff !important;
+    }
+
+    /* Scrollbar for high contrast */
+    body.contrast-high ::-webkit-scrollbar-track {
+        background: #000000;
+    }
+
+    body.contrast-high ::-webkit-scrollbar-thumb {
+        background: #2a2a2a;
+    }
+
+    body.contrast-high ::-webkit-scrollbar-thumb:hover {
+        background: #3a3a3a;
+    }
+
+    body.contrast-yellow {
+        background: #000000;
+    }
+
+    /* Main containers - pure black */
+    body.contrast-yellow .exam-header,
+    body.contrast-yellow .passage-panel,
+    body.contrast-yellow .questions-panel,
+    body.contrast-yellow .bottom-nav,
+    body.contrast-yellow .notes-panel,
+    body.contrast-yellow .settings-modal-content {
+        background: #000000;
+        border-color: #2a2a2a;
+    }
+
+    /* Question items and form elements - dark gray */
+    body.contrast-yellow .question-item {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .form-check {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    /* Input fields - black background */
+    body.contrast-yellow .form-control,
+    body.contrast-yellow .note-comment-input {
+        background: #000000;
+        border: 1px solid #2a2a2a;
+        color: #fbbf24;
+    }
+
+    body.contrast-yellow .form-control::placeholder,
+    body.contrast-yellow .note-comment-input::placeholder {
+        color: #666666;
+    }
+
+    /* Navigation buttons - dark gray */
+    body.contrast-yellow .nav-btn {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+        color: #fbbf24;
+    }
+
+    body.contrast-yellow .nav-btn.answered {
+        background: #2a2a2a;
+        border-color: #3a3a3a;
+    }
+
+    body.contrast-yellow .nav-btn.active {
+        background: #3a3a3a;
+        border-color: #4a4a4a;
+    }
+
+    /* Part tabs - dark gray */
+    body.contrast-yellow .part-tab {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+        color: #fbbf24;
+    }
+
+    body.contrast-yellow .part-tab.active {
+        background: #3a3a3a;
+        border-color: #4a4a4a;
+    }
+
+    /* Icon buttons and badges */
+    body.contrast-yellow .icon-btn {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .icon-btn i {
+        color: #fbbf24;
+    }
+
+    body.contrast-yellow .ielts-badge {
+        background: #000000;
+        border: 1px solid #2a2a2a;
+    }
+
+    body.contrast-yellow .timer-display {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .timer-icon {
+        color: #fbbf24;
+    }
+
+    /* Question badges */
+    body.contrast-yellow .question-number {
+        background: #2a2a2a;
+        color: #fbbf24;
+    }
+
+    body.contrast-yellow .question-points {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        color: #fbbf24;
+    }
+
+    /* Audio player */
+    body.contrast-yellow .audio-player {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    /* Notes panel */
+    body.contrast-yellow .note-item {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .note-quote {
+        background: #000000;
+        border-left-color: #fbbf24;
+    }
+
+    body.contrast-yellow .notes-header,
+    body.contrast-yellow .notes-footer {
+        border-color: #2a2a2a;
+    }
+
+    /* Settings modal */
+    body.contrast-yellow .settings-modal-header {
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .contrast-preview,
+    body.contrast-yellow .text-size-preview {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .contrast-option {
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .contrast-option:hover,
+    body.contrast-yellow .contrast-option.active {
+        border-color: #fbbf24;
+    }
+
+    /* ALL TEXT - yellow */
+    body.contrast-yellow .passage-title,
+    body.contrast-yellow .passage-subtitle,
+    body.contrast-yellow .passage-content,
+    body.contrast-yellow .passage-content p,
+    body.contrast-yellow .questions-title,
+    body.contrast-yellow .questions-instructions,
+    body.contrast-yellow .question-text,
+    body.contrast-yellow .form-check-label,
+    body.contrast-yellow .exam-id,
+    body.contrast-yellow .timer-text,
+    body.contrast-yellow .note-comment,
+    body.contrast-yellow .notes-title,
+    body.contrast-yellow .audio-title,
+    body.contrast-yellow .settings-modal-title,
+    body.contrast-yellow .settings-label,
+    body.contrast-yellow .settings-description,
+    body.contrast-yellow .contrast-name,
+    body.contrast-yellow .text-size-value,
+    body.contrast-yellow .text-size-preview-text,
+    body.contrast-yellow .notes-info,
+    body.contrast-yellow .note-timestamp,
+    body.contrast-yellow .ielts-badge,
+    body.contrast-yellow .btn-close-notes i,
+    body.contrast-yellow .btn-close-modal i {
+        color: #fbbf24 !important;
+    }
+
+    /* Scrollbar for yellow contrast */
+    body.contrast-yellow ::-webkit-scrollbar-track {
+        background: #000000;
+    }
+
+    body.contrast-yellow ::-webkit-scrollbar-thumb {
+        background: #2a2a2a;
+    }
+
+    body.contrast-yellow ::-webkit-scrollbar-thumb:hover {
+        background: #3a3a3a;
+    }
+
+    /* High contrast - bottom nav elements */
+    body.contrast-high .module-indicator,
+    body.contrast-high .part-navigation {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .module-name,
+    body.contrast-high .part-current {
+        color: #ffffff !important;
+    }
+
+    body.contrast-high .module-icon {
+        color: #ffffff;
+    }
+
+    body.contrast-high .part-nav-btn {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-high .part-nav-btn i {
+        color: #ffffff;
+    }
+
+    body.contrast-high .part-nav-btn:disabled {
+        opacity: 0.3;
+    }
+
+    /* Yellow contrast - bottom nav elements */
+    body.contrast-yellow .module-indicator,
+    body.contrast-yellow .part-navigation {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .module-name,
+    body.contrast-yellow .part-current {
+        color: #fbbf24 !important;
+    }
+
+    body.contrast-yellow .module-icon {
+        color: #fbbf24;
+    }
+
+    body.contrast-yellow .part-nav-btn {
+        background: #1a1a1a;
+        border-color: #2a2a2a;
+    }
+
+    body.contrast-yellow .part-nav-btn i {
+        color: #fbbf24;
+    }
+
+    body.contrast-yellow .part-nav-btn:disabled {
+        opacity: 0.3;
+    }
+
+    /* Notes Panel */
+    .notes-panel {
+        position: fixed;
+        top: 70px;
+        right: -400px;
+        width: 400px;
+        height: calc(100vh - 130px);
+        background: white;
+        border-left: 1px solid #e5e7eb;
+        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        z-index: 1500;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .notes-panel.show {
+        right: 0;
+    }
+
+    .notes-header {
+        padding: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notes-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .btn-close-notes {
+        width: 32px;
+        height: 32px;
+        border: 1px solid #e5e7eb;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-close-notes:hover {
+        background: #f9fafb;
+    }
+
+    .notes-content {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .note-item {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+        transition: all 0.2s;
+    }
+
+    .note-item:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    }
+
+    .note-quote {
+        background: white;
+        border-left: 3px solid #3b82f6;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: #4b5563;
+        font-style: italic;
+        border-radius: 4px;
+    }
+
+    .note-comment {
+        font-size: 14px;
+        color: #1f2937;
+        line-height: 1.5;
+        margin-bottom: 8px;
+    }
+
+    .note-comment-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 13px;
+        margin-bottom: 8px;
+        resize: vertical;
+        min-height: 60px;
+    }
+
+    .note-comment-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .note-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .btn-note-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-note-save {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .btn-note-save:hover {
+        background: #2563eb;
+    }
+
+    .btn-note-cancel {
+        background: #e5e7eb;
+        color: #6b7280;
+    }
+
+    .btn-note-cancel:hover {
+        background: #d1d5db;
+    }
+
+    .btn-note-delete {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-note-delete:hover {
+        background: #dc2626;
+    }
+
+    .btn-note-edit {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .btn-note-edit:hover {
+        background: #d97706;
+    }
+
+    .note-timestamp {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-top: 4px;
+    }
+
+    .notes-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: #9ca3af;
+    }
+
+    .notes-empty i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .notes-empty p {
+        font-size: 14px;
+    }
+
+    .notes-footer {
+        padding: 16px 20px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notes-info {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .btn-clear-notes {
+        padding: 8px 16px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-clear-notes:hover {
+        background: #dc2626;
+    }
+
+    /* Main Content */
+    .exam-container {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        bottom: 60px;
+        display: flex;
+    }
+
+    /* Left Panel - Passage */
+    .passage-panel {
+        flex: 1;
+        background: white;
+        border-right: 1px solid #e5e7eb;
+        overflow-y: auto;
+        padding: 32px;
+    }
+
+    .passage-header {
+        margin-bottom: 24px;
+    }
+
+    .passage-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .passage-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .passage-content {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #374151;
+        user-select: text;
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+    }
+
+    .passage-content p {
+        margin-bottom: 16px;
+    }
+
+    .passage-content .highlight {
+        background: #fef08a;
+        padding: 2px 0;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+
+    .passage-content .highlight.yellow {
+        background: #fef08a;
+    }
+
+    .passage-content .highlight.blue {
+        background: #bfdbfe;
+    }
+
+    .audio-player {
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        border-radius: 12px;
         padding: 20px;
         margin-bottom: 24px;
     }
 
     .audio-title {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
         color: #1e40af;
         margin-bottom: 12px;
@@ -195,38 +1163,38 @@
         border-radius: 8px;
     }
 
-    .group-card {
-        background: #ffffff;
-        border: 2px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 24px;
+    /* Right Panel - Questions */
+    .questions-panel {
+        flex: 1;
+        background: #f9fafb;
+        overflow-y: auto;
+        padding: 32px;
+    }
+
+    .questions-header {
         margin-bottom: 24px;
     }
 
-    .group-header {
-        margin-bottom: 20px;
-    }
-
-    .group-title {
+    .questions-title {
         font-size: 18px;
         font-weight: 700;
         color: #1f2937;
         margin-bottom: 8px;
     }
 
-    .group-instructions {
+    .questions-instructions {
         font-size: 14px;
         color: #6b7280;
         font-style: italic;
     }
 
     .question-item {
-        background: #f9fafb;
+        background: white;
         border: 2px solid #e5e7eb;
         border-radius: 12px;
         padding: 20px;
-        margin-bottom: 20px;
-        transition: all 0.2s ease;
+        margin-bottom: 16px;
+        transition: all 0.2s;
     }
 
     .question-item.answered {
@@ -237,153 +1205,207 @@
     .question-header {
         display: flex;
         justify-content: space-between;
-        align-items: start;
-        margin-bottom: 16px;
+        align-items: center;
+        margin-bottom: 12px;
     }
 
     .question-number {
-        padding: 8px 16px;
-        background: #4F46E5;
+        padding: 6px 14px;
+        background: #3b82f6;
         color: white;
-        border-radius: 8px;
+        border-radius: 6px;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 14px;
     }
 
     .question-points {
-        padding: 6px 12px;
+        padding: 4px 10px;
         background: #fef3c7;
         color: #92400e;
         border-radius: 50px;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
     }
 
     .question-text {
-        font-size: 16px;
+        font-size: 15px;
         color: #1f2937;
         line-height: 1.6;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
     }
 
     .form-check {
-        padding: 12px 16px;
-        background: white;
-        border: 2px solid #e5e7eb;
-        border-radius: 10px;
-        margin-bottom: 10px;
+        padding: 10px 14px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 8px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
     }
 
     .form-check:hover {
-        border-color: #4F46E5;
-        background: #f9fafb;
+        border-color: #3b82f6;
+        background: white;
     }
 
     .form-check-input {
-        width: 20px;
-        height: 20px;
-        margin-right: 12px;
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
         cursor: pointer;
-        accent-color: #4F46E5;
+        accent-color: #3b82f6;
     }
 
     .form-check-label {
-        font-size: 15px;
+        font-size: 14px;
         color: #1f2937;
         cursor: pointer;
         line-height: 1.5;
+        flex: 1;
     }
 
     .form-control {
-        padding: 12px 16px;
-        font-size: 15px;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        transition: all 0.3s ease;
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        transition: all 0.2s;
     }
 
     .form-control:focus {
-        border-color: #4F46E5;
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         outline: none;
     }
 
-    .submit-card {
+    /* Bottom Navigation */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
         background: white;
-        border-radius: 20px;
-        padding: 32px;
-        text-align: center;
-        border: 1px solid #e5e7eb;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        z-index: 1000;
+        gap: 24px;
     }
 
-    .btn-submit {
-        padding: 16px 48px;
-        font-size: 18px;
-        font-weight: 600;
-        background: linear-gradient(135deg, #10b981, #22c55e);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        display: inline-flex;
+    .left-nav-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .module-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+    }
+
+    .module-icon {
+        font-size: 20px;
+        color: #3b82f6;
+    }
+
+    .module-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .part-navigation {
+        display: flex;
         align-items: center;
         gap: 12px;
     }
 
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    .nav-sidebar {
-        position: sticky;
-        top: 110px;
-    }
-
-    .nav-card {
-        background: white;
-        border-radius: 20px;
-        padding: 24px;
+    .part-nav-btn {
+        width: 36px;
+        height: 36px;
         border: 1px solid #e5e7eb;
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
     }
 
-    .nav-title {
+    .part-nav-btn:hover:not(:disabled) {
+        border-color: #3b82f6;
+        background: #f9fafb;
+    }
+
+    .part-nav-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .part-nav-btn i {
+        font-size: 16px;
+        color: #6b7280;
+    }
+
+    .part-nav-btn:hover:not(:disabled) i {
+        color: #3b82f6;
+    }
+
+    .part-current {
         font-size: 16px;
         font-weight: 700;
         color: #1f2937;
-        margin-bottom: 16px;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .question-nav {
         display: flex;
         align-items: center;
         gap: 8px;
+        overflow-x: auto;
+        flex: 1;
+        justify-content: center;
+        padding: 4px 0;
     }
 
-    .nav-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-        margin-bottom: 16px;
+    .question-nav::-webkit-scrollbar {
+        height: 4px;
     }
 
     .nav-btn {
-        width: 44px;
-        height: 44px;
-        border: 2px solid #e5e7eb;
+        min-width: 40px;
+        height: 40px;
+        border: 1px solid #e5e7eb;
         background: white;
-        border-radius: 8px;
+        border-radius: 6px;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 13px;
         color: #6b7280;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
     }
 
     .nav-btn:hover {
-        border-color: #4F46E5;
-        color: #4F46E5;
+        border-color: #3b82f6;
+        color: #3b82f6;
     }
 
     .nav-btn.answered {
@@ -392,100 +1414,154 @@
         color: white;
     }
 
-    .nav-legend {
-        padding-top: 16px;
-        border-top: 1px solid #e5e7eb;
-        font-size: 13px;
-        color: #6b7280;
+    .nav-btn.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
     }
 
-    .legend-item {
+    .part-tabs {
+        display: flex;
+        gap: 8px;
+    }
+
+    .part-tab {
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .part-tab:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+    }
+
+    .part-tab.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+    }
+
+    .btn-submit-bottom {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #10b981, #22c55e);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 8px;
+        white-space: nowrap;
     }
 
-    .legend-box {
-        width: 20px;
-        height: 20px;
+    .btn-submit-bottom:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
         border-radius: 4px;
     }
 
-    .legend-box.answered {
-        background: #10b981;
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
     }
 
-    .legend-box.unanswered {
-        background: white;
-        border: 2px solid #e5e7eb;
-    }
-
+    /* Responsive */
     @media (max-width: 1024px) {
-        .content-grid {
-            grid-template-columns: 1fr;
+        .exam-container {
+            flex-direction: column;
         }
 
-        .nav-sidebar {
-            position: static;
+        .passage-panel {
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
         }
     }
 
     @media (max-width: 768px) {
-        .timer-content {
-            flex-direction: column;
+        .header-left {
             gap: 12px;
-            padding: 12px 20px;
         }
 
-        .exam-content {
+        .exam-id {
+            display: none;
+        }
+
+        .header-right .icon-btn:not(:first-child) {
+            display: none;
+        }
+
+        .passage-panel, .questions-panel {
             padding: 20px;
-            margin-top: 140px;
         }
 
-        .section-card {
-            padding: 20px;
+        .bottom-nav {
+            padding: 0 16px;
         }
 
-        .nav-grid {
-            grid-template-columns: repeat(4, 1fr);
+        .part-tabs {
+            display: none;
         }
     }
 </style>
 </head>
 <body>
+
 <!-- Tab Switch Blocking Screen -->
 <div id="blockScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #dc2626, #991b1b); z-index: 99999; align-items: center; justify-content: center;">
     <div style="text-align: center; color: white; padding: 40px; max-width: 600px;">
         <div style="width: 150px; height: 150px; margin: 0 auto 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite;">
             <i class="bi bi-shield-x" style="font-size: 80px;"></i>
         </div>
-        <h1 style="font-size: 42px; font-weight: 700; margin-bottom: 16px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">IMTIHON TO'XTATILDI!</h1>
-        <p style="font-size: 20px; margin-bottom: 32px; line-height: 1.6;">Siz quyidagi sabablarga ko'ra imtihondan chetlashtirildingiz:</p>
+        <h1 style="font-size: 42px; font-weight: 700; margin-bottom: 16px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">EXAM BLOCKED!</h1>
+        <p style="font-size: 20px; margin-bottom: 32px; line-height: 1.6;">You have been removed from the exam for the following reasons:</p>
         
         <div style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 24px; margin-bottom: 32px; text-align: left;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                 <i class="bi bi-x-circle-fill" style="font-size: 24px;"></i>
-                <span style="font-size: 18px;">Tab almashtirish aniqlandi</span>
+                <span style="font-size: 18px;">Tab switching detected</span>
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
                 <i class="bi bi-exclamation-triangle-fill" style="font-size: 24px;"></i>
-                <span style="font-size: 18px;">Imtihon qoidalari buzildi</span>
+                <span style="font-size: 18px;">Exam rules violated</span>
             </div>
         </div>
 
         <div style="background: rgba(255,255,255,0.15); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
-            <p style="font-size: 18px; margin-bottom: 16px;">Imtihonni davom ettirish uchun nazoratchi bilan bog'laning va maxsus parolni kiriting:</p>
-            <input type="password" id="resumePassword" placeholder="Davom ettirish paroli" style="width: 100%; padding: 16px; border: 3px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.2); color: white; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 16px;" />
+            <p style="font-size: 18px; margin-bottom: 16px;">To resume the exam, contact the supervisor and enter the special password:</p>
+            <input type="password" id="resumePassword" placeholder="Resume password" style="width: 100%; padding: 16px; border: 3px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.2); color: white; border-radius: 12px; font-size: 18px; text-align: center; margin-bottom: 16px;" />
             <button onclick="resumeExam()" style="width: 100%; padding: 16px 32px; border: none; background: white; color: #dc2626; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s;">
-                <i class="bi bi-unlock-fill"></i> Imtihonni davom ettirish
+                <i class="bi bi-unlock-fill"></i> Resume Exam
             </button>
-            <p id="passwordError" style="color: #fecaca; margin-top: 12px; font-size: 14px; display: none;">Noto'g'ri parol! Nazoratchi bilan bog'laning.</p>
+            <p id="passwordError" style="color: #fecaca; margin-top: 12px; font-size: 14px; display: none;">Incorrect password! Contact supervisor.</p>
         </div>
 
         <p style="font-size: 16px; opacity: 0.9;">
-            <i class="bi bi-telephone-fill"></i> Nazoratchi bilan bog'laning: 
-            <strong style="font-size: 20px; display: block; margin-top: 8px;">{{ exam_link.exam.organization.phone|default:"Telefon raqami yo'q" }}</strong>
+            <i class="bi bi-telephone-fill"></i> Contact supervisor: 
+            <strong style="font-size: 20px; display: block; margin-top: 8px;">{{ exam_link.exam.organization.phone|default:"No phone number" }}</strong>
         </p>
     </div>
 </div>
@@ -658,211 +1734,323 @@
     </div>
 </div>
 
-<div class="exam-timer">
-    <div class="timer-content">
-        <div class="timer-info">
-            <div>
-                <div class="exam-name">{{ exam.title }}</div>
-                <div class="student-name">{{ student.full_name }}</div>
-            </div>
+<!-- Header -->
+<div class="exam-header">
+    <div class="header-left">
+        <div class="ielts-badge">
+            <i class="bi bi-award"></i>
+            IELTS
         </div>
+        <span class="exam-id">ID: {{ exam.id }}</span>
+    </div>
+    
+    <div class="header-center">
         <div class="timer-display">
             <i class="bi bi-clock timer-icon"></i>
             <span id="timer" class="timer-text">{{ exam.duration }}:00</span>
         </div>
-        <div class="question-count">
-            <i class="bi bi-question-circle"></i> {{ total_questions }} savol
-        </div>
     </div>
-    <div class="progress-bar-container">
-        <div id="timeProgress" class="progress-bar" style="width: 100%"></div>
+    
+    <div class="header-right">
+        <button class="icon-btn" title="Notifications">
+            <i class="bi bi-bell"></i>
+        </button>
+        <button class="icon-btn" onclick="toggleSettings()" title="Settings">
+            <i class="bi bi-list"></i>
+        </button>
+        <button class="icon-btn" onclick="toggleNotes()" title="Notes">
+            <i class="bi bi-journal-text"></i>
+        </button>
     </div>
 </div>
 
-<div class="exam-content">
-    <div class="content-grid">
-        <div>
-            <form id="examForm">
-                {% csrf_token %}
-                <input type="hidden" name="student_id" value="{{ student.id }}">
-                <input type="hidden" name="exam_link_token" value="{{ exam_link.unique_token }}">
-                <input type="hidden" id="startedAt" value="">
-                <input type="hidden" id="tabSwitches" value="0">
-
-                {% for section in sections_data %}
-                <div class="section-card">
-                    <div class="section-header">
-                        <i class="bi bi-layers"></i>
-                        <span class="section-title">{{ section.title }}</span>
-                        <span class="section-badge">{{ section.module_display }}</span>
-                    </div>
-
-                    {% if section.passage_text %}
-                    <div class="passage-box">
-                        <div class="passage-title">
-                            <i class="bi bi-book"></i>
-                            Reading Passage
-                        </div>
-                        {{ section.passage_text|linebreaks }}
-                    </div>
-                    {% endif %}
-
-                    {% if section.audio_url or section.audio_file %}
-                    <div class="audio-box">
-                        <div class="audio-title">
-                            <i class="bi bi-volume-up-fill"></i>
-                            Audio
-                        </div>
-                        <audio controls>
-                            {% if section.audio_file %}
-                            <source src="{{ section.audio_file.url }}" type="audio/mpeg">
-                            {% elif section.audio_url %}
-                            <source src="{{ section.audio_url }}" type="audio/mpeg">
-                            {% endif %}
-                        </audio>
-                    </div>
-                    {% endif %}
-
-                    {% if section.image %}
-                    <div style="text-align: center; margin-bottom: 24px;">
-                        <img src="{{ section.image.url }}" alt="Section image" style="max-width: 100%; border-radius: 12px;">
-                    </div>
-                    {% endif %}
-
-                    {% for group in section.groups %}
-                    <div class="group-card">
-                        <div class="group-header">
-                            <div class="group-title">{{ group.title }}</div>
-                            <div class="group-instructions">{{ group.instructions }}</div>
-                        </div>
-
-                        {% if group.passage_text %}
-                        <div class="passage-box" style="max-height: 300px;">
-                            {{ group.passage_text|linebreaks }}
-                        </div>
-                        {% endif %}
-
-                        {% if group.image %}
-                        <div style="text-align: center; margin-bottom: 20px;">
-                            <img src="{{ group.image.url }}" alt="Group image" style="max-width: 100%; border-radius: 12px;">
-                        </div>
-                        {% endif %}
-
-                        {% for question in group.questions %}
-                        <div class="question-item" id="question-{{ question.counter }}">
-                            <div class="question-header">
-                                <span class="question-number">{{ question.counter }}</span>
-                                <span class="question-points">{{ question.points }} ball</span>
-                            </div>
-                            <div class="question-text">{{ question.text }}</div>
-
-                            {% if question.diagram_image %}
-                            <div style="text-align: center; margin-bottom: 16px;">
-                                <img src="{{ question.diagram_image }}" alt="Diagram" style="max-width: 400px; border-radius: 8px;">
-                            </div>
-                            {% endif %}
-
-                            {% if question.question_type == 'multiple_choice_single' %}
-                                {% for key, value in question.options.items %}
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" 
-                                           name="q_{{ question.question_type }}_{{ question.id }}" 
-                                           id="q{{ question.counter }}_{{ key }}" 
-                                           value="{{ key }}" 
-                                           onchange="markAnswered({{ question.counter }})">
-                                    <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
-                                        <strong>{{ key }}.</strong> {{ value }}
-                                    </label>
-                                </div>
-                                {% endfor %}
-
-                            {% elif question.question_type == 'multiple_choice_multiple' %}
-                                <small style="color: #6b7280; margin-bottom: 12px; display: block;">Bir nechtasini tanlashingiz mumkin</small>
-                                {% for key, value in question.options.items %}
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" 
-                                           name="q_{{ question.question_type }}_{{ question.id }}" 
-                                           id="q{{ question.counter }}_{{ key }}" 
-                                           value="{{ key }}" 
-                                           onchange="markAnswered({{ question.counter }})">
-                                    <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
-                                        <strong>{{ key }}.</strong> {{ value }}
-                                    </label>
-                                </div>
-                                {% endfor %}
-
-                            {% elif question.question_type == 'true_false_ng' or question.question_type == 'yes_no_ng' %}
-                                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                                {% for key, value in question.options.items %}
-                                <div class="form-check" style="flex: 1; min-width: 120px;">
-                                    <input class="form-check-input" type="radio" 
-                                           name="q_{{ question.question_type }}_{{ question.id }}" 
-                                           id="q{{ question.counter }}_{{ key }}" 
-                                           value="{{ key }}" 
-                                           onchange="markAnswered({{ question.counter }})">
-                                    <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
-                                        {{ value }}
-                                    </label>
-                                </div>
-                                {% endfor %}
-                                </div>
-
-                            {% else %}
-                                {% if question.max_words %}
-                                <small style="color: #6b7280; margin-bottom: 8px; display: block;">
-                                    Maksimum {{ question.max_words }} so'z
-                                </small>
-                                {% endif %}
-                                <input type="text" class="form-control" 
-                                       name="q_{{ question.question_type }}_{{ question.id }}" 
-                                       placeholder="Javobingizni yozing..."
-                                       onchange="markAnswered({{ question.counter }})">
-                            {% endif %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endfor %}
-
-                <div class="submit-card">
-                    <button type="button" class="btn-submit" onclick="submitExam()">
-                        <i class="bi bi-check-circle-fill"></i>
-                        Imtihonni yakunlash
-                    </button>
-                </div>
-            </form>
+<!-- Settings Modal -->
+<div id="settingsModal" class="settings-modal" onclick="closeModalOnOutsideClick(event, 'settingsModal')">
+    <div class="settings-modal-content" onclick="event.stopPropagation()">
+        <div class="settings-modal-header">
+            <div class="settings-modal-title">
+                <i class="bi bi-gear-fill"></i>
+                Settings
+            </div>
+            <button class="btn-close-modal" onclick="toggleSettings()">
+                <i class="bi bi-x-lg"></i>
+            </button>
         </div>
 
-        <div class="nav-sidebar">
-            <div class="nav-card">
-                <div class="nav-title">
-                    <i class="bi bi-grid-3x3-gap"></i>
-                    Navigatsiya
+        <!-- Contrast Section -->
+        <div class="settings-section">
+            <div class="settings-label">
+                <i class="bi bi-circle-half"></i>
+                Contrast
+            </div>
+            <div class="settings-description">
+                Choose a contrast theme that works best for you
+            </div>
+            <div class="contrast-options">
+                <div class="contrast-option active" onclick="setContrast('normal')">
+                    <div class="contrast-preview normal">Aa</div>
+                    <div class="contrast-name">Normal</div>
                 </div>
-                <div class="nav-grid">
-                    {% for question in all_questions %}
-                    <button type="button" class="nav-btn" 
-                            id="nav-{{ question.counter }}" 
-                            onclick="scrollToQuestion({{ question.counter }})">
-                        {{ question.counter }}
-                    </button>
-                    {% endfor %}
+                <div class="contrast-option" onclick="setContrast('high')">
+                    <div class="contrast-preview high">Aa</div>
+                    <div class="contrast-name">High</div>
                 </div>
-                <div class="nav-legend">
-                    <div class="legend-item">
-                        <div class="legend-box answered"></div>
-                        <span>Javob berilgan</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-box unanswered"></div>
-                        <span>Javob berilmagan</span>
-                    </div>
+                <div class="contrast-option" onclick="setContrast('yellow')">
+                    <div class="contrast-preview yellow">Aa</div>
+                    <div class="contrast-name">Yellow</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Size Section -->
+        <div class="settings-section">
+            <div class="settings-label">
+                <i class="bi bi-fonts"></i>
+                Text Size
+            </div>
+            <div class="settings-description">
+                Adjust the text size for better readability
+            </div>
+            <div class="text-size-control">
+                <span style="font-size: 12px; color: #6b7280;">A</span>
+                <input type="range" class="text-size-slider" id="textSizeSlider" 
+                       min="12" max="20" value="15" step="1" 
+                       oninput="updateTextSize(this.value)">
+                <span style="font-size: 20px; color: #6b7280;">A</span>
+            </div>
+            <div class="text-size-value" id="textSizeValue">15px</div>
+            <div class="text-size-preview">
+                <div class="text-size-preview-text" id="textSizePreview">
+                    This is a preview of how the text will look in the exam.
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Highlight Toolbar -->
+<div id="highlightToolbar" class="highlight-toolbar" data-mode="text-selected">
+    <button class="highlight-btn yellow btn-highlight-yellow" onclick="highlightText('yellow')" title="Highlight">
+        <i class="bi bi-brush-fill" style="color: #ca8a04;"></i>
+    </button>
+    <button class="highlight-btn add-note" onclick="addToNotes()" title="Add to Notes">
+        <i class="bi bi-journal-plus"></i>
+    </button>
+    <button class="highlight-btn remove btn-remove-highlight" onclick="removeHighlight()" title="Remove">
+        <i class="bi bi-eraser-fill"></i>
+    </button>
+</div>
+
+<!-- Notes Panel -->
+<div id="notesPanel" class="notes-panel">
+    <div class="notes-header">
+        <div class="notes-title">
+            <i class="bi bi-journal-text"></i> My Notes
+        </div>
+        <button class="btn-close-notes" onclick="toggleNotes()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <div class="notes-content" id="notesContent">
+        <div class="notes-empty">
+            <i class="bi bi-journal-text"></i>
+            <p>No notes yet. Select text and click "Add to Notes"</p>
+        </div>
+    </div>
+    <div class="notes-footer">
+        <div class="notes-info">
+            <i class="bi bi-info-circle"></i> Auto-saved
+        </div>
+        <button class="btn-clear-notes" onclick="clearAllNotes()">
+            <i class="bi bi-trash"></i> Clear All
+        </button>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="exam-container">
+    <!-- Left Panel - Passage -->
+    <div class="passage-panel" id="passagePanel">
+        {% for section in sections_data %}
+        <div class="section-content" data-section-id="{{ section.id }}">
+            <div class="passage-header">
+                <div class="passage-title">{{ section.title }}</div>
+                <div class="passage-subtitle">{{ section.module_display }}</div>
+            </div>
+
+            {% if section.audio_url or section.audio_file %}
+            <div class="audio-player">
+                <div class="audio-title">
+                    <i class="bi bi-volume-up-fill"></i>
+                    Audio
+                </div>
+                <audio controls>
+                    {% if section.audio_file %}
+                    <source src="{{ section.audio_file.url }}" type="audio/mpeg">
+                    {% elif section.audio_url %}
+                    <source src="{{ section.audio_url }}" type="audio/mpeg">
+                    {% endif %}
+                </audio>
+            </div>
+            {% endif %}
+
+            {% if section.passage_text %}
+            <div class="passage-content">
+                {{ section.passage_text|linebreaks }}
+            </div>
+            {% endif %}
+
+            {% if section.image %}
+            <div style="text-align: center; margin-top: 24px;">
+                <img src="{{ section.image.url }}" alt="Section image" style="max-width: 100%; border-radius: 12px;">
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Right Panel - Questions -->
+    <div class="questions-panel" id="questionsPanel">
+        <form id="examForm">
+            {% csrf_token %}
+            <input type="hidden" name="student_id" value="{{ student.id }}">
+            <input type="hidden" name="exam_link_token" value="{{ exam_link.unique_token }}">
+            <input type="hidden" id="startedAt" value="">
+            <input type="hidden" id="tabSwitches" value="0">
+
+            {% for section in sections_data %}
+            {% for group in section.groups %}
+            <div class="questions-section" data-section-id="{{ section.id }}">
+                <div class="questions-header">
+                    <div class="questions-title">{{ group.title }}</div>
+                    <div class="questions-instructions">{{ group.instructions }}</div>
+                </div>
+
+                {% if group.passage_text %}
+                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 20px; max-height: 300px; overflow-y: auto;">
+                    {{ group.passage_text|linebreaks }}
+                </div>
+                {% endif %}
+
+                {% if group.image %}
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="{{ group.image.url }}" alt="Group image" style="max-width: 100%; border-radius: 12px;">
+                </div>
+                {% endif %}
+
+                {% for question in group.questions %}
+                <div class="question-item" id="question-{{ question.counter }}" data-question-id="{{ question.counter }}">
+                    <div class="question-header">
+                        <span class="question-number">{{ question.counter }}</span>
+                        <span class="question-points">{{ question.points }} point</span>
+                    </div>
+                    <div class="question-text">{{ question.text }}</div>
+
+                    {% if question.diagram_image %}
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <img src="{{ question.diagram_image }}" alt="Diagram" style="max-width: 400px; border-radius: 8px;">
+                    </div>
+                    {% endif %}
+
+                    {% if question.question_type == 'multiple_choice_single' %}
+                        {% for key, value in question.options.items %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" 
+                                   name="q_{{ question.question_type }}_{{ question.id }}" 
+                                   id="q{{ question.counter }}_{{ key }}" 
+                                   value="{{ key }}" 
+                                   onchange="markAnswered({{ question.counter }})">
+                            <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
+                                <strong>{{ key }}.</strong> {{ value }}
+                            </label>
+                        </div>
+                        {% endfor %}
+
+                    {% elif question.question_type == 'multiple_choice_multiple' %}
+                        <small style="color: #6b7280; margin-bottom: 12px; display: block;">Select multiple answers</small>
+                        {% for key, value in question.options.items %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   name="q_{{ question.question_type }}_{{ question.id }}" 
+                                   id="q{{ question.counter }}_{{ key }}" 
+                                   value="{{ key }}" 
+                                   onchange="markAnswered({{ question.counter }})">
+                            <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
+                                <strong>{{ key }}.</strong> {{ value }}
+                            </label>
+                        </div>
+                        {% endfor %}
+
+                    {% elif question.question_type == 'true_false_ng' or question.question_type == 'yes_no_ng' %}
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        {% for key, value in question.options.items %}
+                        <div class="form-check" style="flex: 1; min-width: 120px;">
+                            <input class="form-check-input" type="radio" 
+                                   name="q_{{ question.question_type }}_{{ question.id }}" 
+                                   id="q{{ question.counter }}_{{ key }}" 
+                                   value="{{ key }}" 
+                                   onchange="markAnswered({{ question.counter }})">
+                            <label class="form-check-label" for="q{{ question.counter }}_{{ key }}">
+                                {{ value }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                        </div>
+
+                    {% else %}
+                        {% if question.max_words %}
+                        <small style="color: #6b7280; margin-bottom: 8px; display: block;">
+                            Maximum {{ question.max_words }} words
+                        </small>
+                        {% endif %}
+                        <input type="text" class="form-control" 
+                               name="q_{{ question.question_type }}_{{ question.id }}" 
+                               placeholder="Write your answer..."
+                               onchange="markAnswered({{ question.counter }})">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </form>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <!-- Left: Module and Part Navigation -->
+    <div class="left-nav-section">
+        <div class="module-indicator">
+            <i class="bi bi-headphones module-icon"></i>
+            <span class="module-name" id="currentModule">Reading</span>
+        </div>
+        
+        <div class="part-navigation">
+            <button type="button" class="part-nav-btn" id="prevPartBtn" onclick="navigatePart(-1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            
+            <span class="part-current" id="currentPartDisplay">1 / {{ sections_data|length }}</span>
+            
+            <button type="button" class="part-nav-btn" id="nextPartBtn" onclick="navigatePart(1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Center: Question numbers for current part -->
+    <div class="question-nav" id="questionNav">
+        <!-- Will be populated by JavaScript -->
+    </div>
+    
+    <!-- Right: Submit Button -->
+    <button class="btn-submit-bottom" onclick="submitExam()">
+        <i class="bi bi-check-circle-fill"></i>
+        Submit
+    </button>
+</div>
+
 
 <script>
 let duration = {{ duration_seconds }};
@@ -870,7 +2058,7 @@ let timeLeft = duration;
 let tabSwitches = 0;
 let startedAt = new Date().toISOString();
 document.getElementById('startedAt').value = startedAt;
-let examStarted = false; // Start as false until fullscreen is enabled
+let examStarted = false;
 let isBlocked = false;
 const resumePasswordCorrect = '{{ exam_link.resume_password }}';
 
@@ -878,29 +2066,24 @@ const resumePasswordCorrect = '{{ exam_link.resume_password }}';
 function enableFullscreenAndStart() {
     const elem = document.documentElement;
     
-    // Request fullscreen
     const fullscreenPromise = elem.requestFullscreen ? elem.requestFullscreen() :
                              elem.webkitRequestFullscreen ? elem.webkitRequestFullscreen() :
                              elem.msRequestFullscreen ? elem.msRequestFullscreen() : null;
     
     if (fullscreenPromise) {
         fullscreenPromise.then(() => {
-            // Hide modal
             document.getElementById('fullscreenModal').classList.remove('show');
-            // Start exam
             examStarted = true;
             startedAt = new Date().toISOString();
             document.getElementById('startedAt').value = startedAt;
         }).catch((err) => {
             console.error('Fullscreen error:', err);
-            // If fullscreen fails, still allow exam to start
             document.getElementById('fullscreenModal').classList.remove('show');
             examStarted = true;
             startedAt = new Date().toISOString();
             document.getElementById('startedAt').value = startedAt;
         });
     } else {
-        // Fallback if fullscreen API not supported
         document.getElementById('fullscreenModal').classList.remove('show');
         examStarted = true;
         startedAt = new Date().toISOString();
@@ -920,23 +2103,19 @@ function handleFullscreenChange() {
                         document.mozFullScreenElement || 
                         document.msFullscreenElement;
     
-    // Only enforce fullscreen if exam is still running (not submitted)
     if (!isFullscreen && examStarted && !isBlocked) {
-        // User exited fullscreen during exam
         tabSwitches++;
         document.getElementById('tabSwitches').value = tabSwitches;
         
         showWarning(
-            'Fullscreen dan chiqdingiz!', 
-            'Imtihon davomida fullscreen rejimidan chiqish qoidabuzarlik hisoblanadi. Bu harakat qayd etildi. Iltimos, qaytadan fullscreen rejimiga o\'ting.'
+            'Exited fullscreen!', 
+            'Exiting fullscreen during the exam is not allowed. This action has been recorded.'
         );
         
-        // Immediately try to re-enter fullscreen
         reenterFullscreen();
     }
 }
 
-// Function to re-enter fullscreen
 function reenterFullscreen() {
     if (examStarted && !isBlocked) {
         const elem = document.documentElement;
@@ -950,7 +2129,7 @@ function reenterFullscreen() {
     }
 }
 
-// Continuous fullscreen monitoring - check every 500ms
+// Continuous fullscreen monitoring
 setInterval(() => {
     if (examStarted && !isBlocked) {
         const isFullscreen = document.fullscreenElement || 
@@ -959,85 +2138,10 @@ setInterval(() => {
                             document.msFullscreenElement;
         
         if (!isFullscreen) {
-            // Silently try to re-enter fullscreen
             reenterFullscreen();
         }
     }
 }, 500);
-
-// Check if page was refreshed during exam
-window.addEventListener('load', function() {
-    const wasRefreshed = sessionStorage.getItem('examRefreshAttempt');
-    const savedState = sessionStorage.getItem('examState');
-    
-    if (wasRefreshed === 'true' && savedState) {
-        const state = JSON.parse(savedState);
-        
-        // If was blocked and refreshed, redirect to blocked page
-        if (state.isBlocked) {
-            // Clear storage
-            sessionStorage.removeItem('examRefreshAttempt');
-            sessionStorage.removeItem('examState');
-            
-            // Create a permanent block page
-            document.body.innerHTML = `
-                <div style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #dc2626, #991b1b); z-index: 99999; align-items: center; justify-content: center;">
-                    <div style="text-align: center; color: white; padding: 40px; max-width: 600px;">
-                        <div style="width: 150px; height: 150px; margin: 0 auto 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-shield-x" style="font-size: 80px;"></i>
-                        </div>
-                        <h1 style="font-size: 42px; font-weight: 700; margin-bottom: 16px; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">IMTIHON TO'XTATILDI!</h1>
-                        <p style="font-size: 20px; margin-bottom: 32px; line-height: 1.6;">Siz imtihon qoidalarini buzdingiz va sahifani yangila urinish qildingiz.</p>
-                        
-                        <div style="background: rgba(0,0,0,0.3); border-radius: 16px; padding: 24px; margin-bottom: 32px; text-align: left;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                                <i class="bi bi-x-circle-fill" style="font-size: 24px;"></i>
-                                <span style="font-size: 18px;">Tab almashtirish aniqlandi</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 24px;"></i>
-                                <span style="font-size: 18px;">Imtihon qoidalari buzildi</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <i class="bi bi-arrow-clockwise" style="font-size: 24px;"></i>
-                                <span style="font-size: 18px;">Sahifani yangilash urinishi</span>
-                            </div>
-                        </div>
-
-                        <div style="background: rgba(255,255,255,0.15); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
-                            <p style="font-size: 18px; font-weight: 600;">Imtihonga qaytish mumkin emas!</p>
-                            <p style="font-size: 16px; margin-top: 12px;">Nazoratchi bilan bog'laning va vaziyatni tushuntiring.</p>
-                        </div>
-
-                        <p style="font-size: 16px; opacity: 0.9;">
-                            <i class="bi bi-telephone-fill"></i> Nazoratchi bilan bog'laning: 
-                            <strong style="font-size: 20px; display: block; margin-top: 8px;">{{ exam_link.exam.organization.phone|default:"Telefon raqami yo'q" }}</strong>
-                        </p>
-                    </div>
-                </div>
-            `;
-            return;
-        }
-        
-        // Restore exam state for non-blocked users
-        timeLeft = state.timeLeft;
-        tabSwitches = state.tabSwitches;
-        startedAt = state.startedAt;
-        isBlocked = state.isBlocked;
-        
-        document.getElementById('startedAt').value = startedAt;
-        document.getElementById('tabSwitches').value = tabSwitches;
-        
-        // Clear storage
-        sessionStorage.removeItem('examRefreshAttempt');
-        sessionStorage.removeItem('examState');
-        
-        // Show warning modal
-        setTimeout(function() {
-            showWarning('Sahifani yangilab bo\'lmaydi', 'Imtihon davomida sahifani yangilash mumkin emas. Imtihonni yakunlasangiz bo\'ladi.');
-        }, 500);
-    }
-});
 
 function blockExam() {
     isBlocked = true;
@@ -1057,12 +2161,10 @@ function resumeExam() {
         document.getElementById('resumePassword').value = '';
         document.getElementById('passwordError').style.display = 'none';
         
-        // Clear refresh attempt flags
         sessionStorage.removeItem('examRefreshAttempt');
         sessionStorage.removeItem('examState');
         
-        // Show success message
-        showWarning('Imtihon davom ettirildi', 'Endi imtihonni davom ettirishingiz mumkin. Iltimos, qoidalarga rioya qiling.');
+        showWarning('Exam resumed', 'You can now continue the exam. Please follow the rules.');
     } else {
         document.getElementById('passwordError').style.display = 'block';
         document.getElementById('resumePassword').value = '';
@@ -1075,16 +2177,15 @@ history.pushState(null, null, location.href);
 window.onpopstate = function () {
     history.go(1);
     if (isBlocked) {
-        showWarning('Imtihon bloklangan', 'Siz imtihon qoidalarini buzdingiz. Orqaga qaytish mumkin emas. Nazoratchi bilan bog\'laning.');
+        showWarning('Exam blocked', 'You violated exam rules. Cannot go back. Contact supervisor.');
     } else if (examStarted) {
-        showWarning('Orqaga qaytib bo\'lmaydi', 'Imtihon davomida orqaga qaytish mumkin emas. Imtihonni yakunlasangiz bo\'ladi.');
+        showWarning('Cannot go back', 'Cannot go back during exam. Finish the exam first.');
     }
 };
 
 // Prevent page refresh
 window.addEventListener('beforeunload', function (e) {
     if (examStarted) {
-        // Save exam state before refresh
         const examState = {
             timeLeft: timeLeft,
             tabSwitches: tabSwitches,
@@ -1095,27 +2196,24 @@ window.addEventListener('beforeunload', function (e) {
         sessionStorage.setItem('examRefreshAttempt', 'true');
         
         e.preventDefault();
-        e.returnValue = 'Imtihon davom etmoqda. Sahifani yopish imtihonni yakunlaydi!';
+        e.returnValue = 'Exam in progress. Closing the page will end the exam!';
         return e.returnValue;
     }
 });
 
-// Prevent F5, Ctrl+R, and ESC
+// Prevent ESC, F5, Ctrl+R
 document.addEventListener('keydown', function(e) {
-    // ESC key - prevent exiting fullscreen
     if (e.keyCode === 27 || e.key === 'Escape') {
         if (examStarted && !isBlocked) {
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
             
-            showWarning('ESC tugmasi bloklangan', 'Imtihon davomida fullscreen rejimidan chiqish mumkin emas. Bu harakat qayd etiladi.');
+            showWarning('ESC key blocked', 'Cannot exit fullscreen during exam. This action is recorded.');
             
-            // Track ESC attempt
             tabSwitches++;
             document.getElementById('tabSwitches').value = tabSwitches;
             
-            // Force fullscreen if somehow exited
             setTimeout(() => {
                 const isFullscreen = document.fullscreenElement || 
                                     document.webkitFullscreenElement || 
@@ -1138,27 +2236,25 @@ document.addEventListener('keydown', function(e) {
         }
     }
     
-    // F5
     if (e.keyCode === 116 || e.key === 'F5') {
         e.preventDefault();
         if (isBlocked) {
-            showWarning('Sahifani yangilab bo\'lmaydi', 'Siz imtihon qoidalarini buzdingiz. Sahifani yangilash mumkin emas. Nazoratchi bilan bog\'laning.');
+            showWarning('Cannot refresh', 'You violated exam rules. Cannot refresh. Contact supervisor.');
         } else if (examStarted) {
-            showWarning('Sahifani yangilab bo\'lmaydi', 'Imtihon davomida sahifani yangilash mumkin emas. Imtihonni yakunlasangiz bo\'ladi.');
+            showWarning('Cannot refresh', 'Cannot refresh during exam. Finish the exam first.');
         }
     }
-    // Ctrl+R or Cmd+R
+    
     if ((e.ctrlKey || e.metaKey) && (e.keyCode === 82 || e.key === 'r' || e.key === 'R')) {
         e.preventDefault();
         if (isBlocked) {
-            showWarning('Sahifani yangilab bo\'lmaydi', 'Siz imtihon qoidalarini buzdingiz. Sahifani yangilash mumkin emas. Nazoratchi bilan bog\'laning.');
+            showWarning('Cannot refresh', 'You violated exam rules. Cannot refresh. Contact supervisor.');
         } else if (examStarted) {
-            showWarning('Sahifani yangilab bo\'lmaydi', 'Imtihon davomida sahifani yangilash mumkin emas. Imtihonni yakunlasangiz bo\'ladi.');
+            showWarning('Cannot refresh', 'Cannot refresh during exam. Finish the exam first.');
         }
     }
-}, true); // Use capture phase
+}, true);
 
-// Also prevent on keyup to be extra safe
 document.addEventListener('keyup', function(e) {
     if ((e.keyCode === 27 || e.key === 'Escape') && examStarted && !isBlocked) {
         e.preventDefault();
@@ -1182,13 +2278,12 @@ function showWarning(title, message) {
                 <p style="font-size: 16px; color: #94a3b8; line-height: 1.6;">${message}</p>
             </div>
             <button onclick="this.parentElement.parentElement.remove()" style="width: 100%; padding: 14px 24px; border: none; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);">
-                Tushunarli
+                Understood
             </button>
         </div>
     `;
     document.body.appendChild(modal);
     
-    // Close on outside click
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             modal.remove();
@@ -1196,6 +2291,7 @@ function showWarning(title, message) {
     });
 }
 
+// Timer
 const timerInterval = setInterval(() => {
     if (!isBlocked) {
         timeLeft--;
@@ -1204,54 +2300,62 @@ const timerInterval = setInterval(() => {
         document.getElementById('timer').textContent = 
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         
-        const progress = (timeLeft / duration) * 100;
-        document.getElementById('timeProgress').style.width = progress + '%';
-        
         if (timeLeft <= 300) {
             document.getElementById('timer').classList.add('warning');
             if (timeLeft === 300) {
-                showWarning('Vaqt tugamoqda', 'Imtihon tugashiga 5 daqiqa qoldi. Javoblaringizni tekshiring.');
+                showWarning('Time running out', '5 minutes remaining. Check your answers.');
             }
         }
         
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             examStarted = false;
-            showWarning('Vaqt tugadi', 'Imtihon vaqti tugadi. Javoblaringiz avtomatik yuborilmoqda...');
+            showWarning('Time is up', 'Exam time has ended. Submitting your answers automatically...');
             setTimeout(() => submitExam(true), 2000);
         }
     }
 }, 1000);
 
-// Tab switch detection - IMMEDIATE BLOCK
+// Tab switch detection
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && examStarted && !isBlocked) {
         tabSwitches++;
         document.getElementById('tabSwitches').value = tabSwitches;
-        
-        // IMMEDIATELY BLOCK ON FIRST TAB SWITCH
         blockExam();
     }
 });
 
 document.addEventListener('copy', (e) => {
+    // Allow copy in passage panel for highlighting
+    const selection = window.getSelection();
+    const passagePanel = document.getElementById('passagePanel');
+    if (passagePanel && passagePanel.contains(selection.anchorNode)) {
+        return; // Allow copy in passage
+    }
+    
     if (!isBlocked) {
         e.preventDefault();
-        showWarning('Nusxa olish taqiqlangan', 'Imtihon davomida matnni nusxa olish mumkin emas.');
+        showWarning('Copy not allowed', 'Cannot copy text during exam.');
     }
 });
 
 document.addEventListener('paste', (e) => {
     if (!isBlocked) {
         e.preventDefault();
-        showWarning('Qo\'yish taqiqlangan', 'Imtihon davomida matn qo\'yish mumkin emas.');
+        showWarning('Paste not allowed', 'Cannot paste text during exam.');
     }
 });
 
 document.addEventListener('contextmenu', (e) => {
+    // Allow right-click in passage panel for highlighting
+    const passagePanel = document.getElementById('passagePanel');
+    if (passagePanel && passagePanel.contains(e.target)) {
+        return; // Allow right-click in passage
+    }
+    
     if (!isBlocked) {
         e.preventDefault();
-        showWarning('O\'ng tugma taqiqlangan', 'Imtihon davomida o\'ng tugma ishlatish mumkin emas.');
+        showWarning('Right-click disabled', 'Right-click is not allowed during exam.');
     }
 });
 
@@ -1261,6 +2365,9 @@ function markAnswered(counter) {
         const questionItem = document.getElementById('question-' + counter);
         if (navBtn) navBtn.classList.add('answered');
         if (questionItem) questionItem.classList.add('answered');
+        
+        // Update question nav to reflect changes
+        updateQuestionNav();
     }
 }
 
@@ -1269,17 +2376,615 @@ function scrollToQuestion(counter) {
         const el = document.getElementById('question-' + counter);
         if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Update active state
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            const navBtn = document.getElementById('nav-' + counter);
+            if (navBtn) navBtn.classList.add('active');
         }
     }
 }
 
-function submitExam(autoSubmit = false) {
-    if (isBlocked && !autoSubmit) {
-        showWarning('Imtihon bloklangan', 'Avval parol kiriting va imtihonni davom ettiring.');
+// Part navigation
+let currentPartIndex = 0;
+let sectionsData = [];
+let totalParts = 0;
+
+// Initialize part navigation on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Build sections data from DOM
+    const sectionElements = document.querySelectorAll('.questions-section');
+    sectionsData = Array.from(sectionElements).map((section, index) => {
+        return {
+            id: section.getAttribute('data-section-id'),
+            index: index,
+            module_display: section.querySelector('.questions-title')?.textContent || 'Section ' + (index + 1)
+        };
+    });
+    
+    totalParts = sectionsData.length;
+    console.log('Sections loaded:', sectionsData);
+    
+    if (totalParts > 0) {
+        updatePartNavigation();
+        updateQuestionNav();
+    }
+});
+
+function navigatePart(direction) {
+    const newIndex = currentPartIndex + direction;
+    
+    console.log('Navigate from', currentPartIndex, 'to', newIndex);
+    
+    if (newIndex < 0 || newIndex >= totalParts) {
+        console.log('Cannot navigate - out of bounds');
         return;
     }
     
-    if (!autoSubmit && !confirm('Imtihonni yakunlashga ishonchingiz komilmi?\n\nDiqqat: Yakunlagandan keyin qaytib kira olmaysiz!')) {
+    currentPartIndex = newIndex;
+    updatePartNavigation();
+    updateQuestionNav();
+    
+    // Scroll to first question of this part
+    const sectionId = sectionsData[currentPartIndex].id;
+    const firstQuestion = document.querySelector(`.questions-section[data-section-id="${sectionId}"] .question-item`);
+    if (firstQuestion) {
+        firstQuestion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function updatePartNavigation() {
+    // Update part display
+    const partDisplay = document.getElementById('currentPartDisplay');
+    if (partDisplay) {
+        partDisplay.textContent = `${currentPartIndex + 1} / ${totalParts}`;
+    }
+    
+    // Update prev/next button states
+    const prevBtn = document.getElementById('prevPartBtn');
+    const nextBtn = document.getElementById('nextPartBtn');
+    
+    if (prevBtn) prevBtn.disabled = currentPartIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentPartIndex === totalParts - 1;
+    
+    // Update module name based on section
+    const currentSection = sectionsData[currentPartIndex];
+    const moduleDisplay = document.getElementById('currentModule');
+    if (currentSection && moduleDisplay) {
+        // Try to get module from section element
+        const sectionElement = document.querySelector(`.section-content[data-section-id="${currentSection.id}"]`);
+        if (sectionElement) {
+            const moduleText = sectionElement.querySelector('.passage-subtitle')?.textContent || 'Reading';
+            moduleDisplay.textContent = moduleText;
+        }
+    }
+    
+    console.log('Updated navigation - Part:', currentPartIndex + 1, '/', totalParts);
+}
+
+function updateQuestionNav() {
+    const questionNav = document.getElementById('questionNav');
+    if (!questionNav) {
+        console.error('Question nav element not found');
+        return;
+    }
+    
+    questionNav.innerHTML = '';
+    
+    // Get questions for current part only
+    const sectionId = sectionsData[currentPartIndex].id;
+    const questionsSection = document.querySelector(`.questions-section[data-section-id="${sectionId}"]`);
+    
+    console.log('Loading questions for section:', sectionId);
+    
+    if (questionsSection) {
+        const questions = questionsSection.querySelectorAll('.question-item');
+        console.log('Found', questions.length, 'questions');
+        
+        questions.forEach(question => {
+            const counter = question.getAttribute('data-question-id');
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'nav-btn';
+            btn.id = 'nav-' + counter;
+            btn.textContent = counter;
+            btn.onclick = () => scrollToQuestion(counter);
+            
+            // Check if answered
+            if (question.classList.contains('answered')) {
+                btn.classList.add('answered');
+            }
+            
+            questionNav.appendChild(btn);
+        });
+    } else {
+        console.error('Questions section not found for ID:', sectionId);
+    }
+}
+
+function switchSection(sectionId) {
+    // Find section index
+    const sectionIndex = sectionsData.findIndex(s => s.id == sectionId);
+    console.log('Switch to section:', sectionId, 'index:', sectionIndex);
+    
+    if (sectionIndex !== -1) {
+        currentPartIndex = sectionIndex;
+        updatePartNavigation();
+        updateQuestionNav();
+        
+        // Scroll to first question of this section
+        const firstQuestion = document.querySelector(`.questions-section[data-section-id="${sectionId}"] .question-item`);
+        if (firstQuestion) {
+            firstQuestion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+}
+
+// Highlight functionality
+let currentSelection = null;
+let currentHighlightElement = null;
+
+document.addEventListener('mouseup', function(e) {
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    const passagePanel = document.getElementById('passagePanel');
+    
+    // Check if clicked on a blue highlight (note)
+    if (e.target.classList.contains('highlight') && e.target.classList.contains('blue')) {
+        const noteText = e.target.textContent;
+        const note = notesData.find(n => n.quote === noteText);
+        if (note) {
+            // Open notes panel and scroll to this note
+            document.getElementById('notesPanel').classList.add('show');
+            renderNotes();
+            setTimeout(() => {
+                const noteElement = document.querySelector(`[data-note-id="${note.id}"]`);
+                if (noteElement) {
+                    noteElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    noteElement.style.animation = 'highlight-flash 1s ease';
+                }
+            }, 100);
+        }
+        return;
+    }
+    
+    // Check if clicked on a yellow highlight
+    if (e.target.classList.contains('highlight') && e.target.classList.contains('yellow')) {
+        currentHighlightElement = e.target;
+        const rect = e.target.getBoundingClientRect();
+        
+        const toolbar = document.getElementById('highlightToolbar');
+        toolbar.style.left = rect.left + (rect.width / 2) - 60 + 'px';
+        toolbar.style.top = rect.top - 50 + window.scrollY + 'px';
+        toolbar.classList.add('show');
+        toolbar.setAttribute('data-mode', 'highlight-clicked');
+        return;
+    }
+    
+    if (selectedText && passagePanel && passagePanel.contains(selection.anchorNode)) {
+        currentSelection = selection;
+        currentHighlightElement = null;
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        
+        const toolbar = document.getElementById('highlightToolbar');
+        toolbar.style.left = rect.left + (rect.width / 2) - 60 + 'px';
+        toolbar.style.top = rect.top - 50 + window.scrollY + 'px';
+        toolbar.classList.add('show');
+        toolbar.setAttribute('data-mode', 'text-selected');
+    } else {
+        document.getElementById('highlightToolbar').classList.remove('show');
+    }
+});
+
+function highlightText(color) {
+    if (!currentSelection) return;
+    
+    try {
+        const range = currentSelection.getRangeAt(0);
+        const span = document.createElement('span');
+        span.className = `highlight ${color}`;
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+        
+        // Save highlights to localStorage
+        saveHighlights();
+        
+        document.getElementById('highlightToolbar').classList.remove('show');
+        currentSelection = null;
+        window.getSelection().removeAllRanges();
+    } catch (e) {
+        console.error('Highlight error:', e);
+    }
+}
+
+function removeHighlight() {
+    if (currentHighlightElement) {
+        // Remove clicked highlight
+        const parent = currentHighlightElement.parentNode;
+        while (currentHighlightElement.firstChild) {
+            parent.insertBefore(currentHighlightElement.firstChild, currentHighlightElement);
+        }
+        parent.removeChild(currentHighlightElement);
+        
+        saveHighlights();
+        document.getElementById('highlightToolbar').classList.remove('show');
+        currentHighlightElement = null;
+        return;
+    }
+    
+    if (!currentSelection) return;
+    
+    try {
+        const range = currentSelection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        
+        // Find parent highlight span
+        let highlightSpan = container.parentElement;
+        while (highlightSpan && !highlightSpan.classList.contains('highlight')) {
+            highlightSpan = highlightSpan.parentElement;
+        }
+        
+        if (highlightSpan && highlightSpan.classList.contains('highlight')) {
+            const parent = highlightSpan.parentNode;
+            while (highlightSpan.firstChild) {
+                parent.insertBefore(highlightSpan.firstChild, highlightSpan);
+            }
+            parent.removeChild(highlightSpan);
+            
+            // Save highlights to localStorage
+            saveHighlights();
+        }
+        
+        document.getElementById('highlightToolbar').classList.remove('show');
+        currentSelection = null;
+        window.getSelection().removeAllRanges();
+    } catch (e) {
+        console.error('Remove highlight error:', e);
+    }
+}
+
+function saveHighlights() {
+    const passagePanel = document.getElementById('passagePanel');
+    if (passagePanel) {
+        localStorage.setItem('exam_highlights_{{ exam.id }}', passagePanel.innerHTML);
+    }
+}
+
+function loadHighlights() {
+    const saved = localStorage.getItem('exam_highlights_{{ exam.id }}');
+    const passagePanel = document.getElementById('passagePanel');
+    if (saved && passagePanel) {
+        passagePanel.innerHTML = saved;
+    }
+}
+
+// Notes functionality
+let notesData = [];
+let currentContrast = 'normal';
+let currentTextSize = 15;
+
+// Settings functionality
+function toggleSettings() {
+    const modal = document.getElementById('settingsModal');
+    modal.classList.toggle('show');
+    
+    if (modal.classList.contains('show')) {
+        loadSettings();
+    }
+}
+
+function setContrast(contrast) {
+    currentContrast = contrast;
+    
+    // Update active state
+    document.querySelectorAll('.contrast-option').forEach(opt => {
+        opt.classList.remove('active');
+    });
+    event.target.closest('.contrast-option').classList.add('active');
+    
+    // Apply contrast
+    document.body.classList.remove('contrast-high', 'contrast-yellow');
+    if (contrast === 'high') {
+        document.body.classList.add('contrast-high');
+    } else if (contrast === 'yellow') {
+        document.body.classList.add('contrast-yellow');
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('exam_contrast_{{ exam.id }}', contrast);
+}
+
+function updateTextSize(size) {
+    currentTextSize = parseInt(size);
+    
+    // Update display
+    document.getElementById('textSizeValue').textContent = size + 'px';
+    document.getElementById('textSizePreview').style.fontSize = size + 'px';
+    
+    // Apply to passage and questions
+    document.querySelectorAll('.passage-content, .question-text, .form-check-label').forEach(el => {
+        el.style.fontSize = size + 'px';
+    });
+    
+    // Save to localStorage
+    localStorage.setItem('exam_text_size_{{ exam.id }}', size);
+}
+
+function loadSettings() {
+    // Load contrast
+    const savedContrast = localStorage.getItem('exam_contrast_{{ exam.id }}');
+    if (savedContrast) {
+        currentContrast = savedContrast;
+        document.body.classList.remove('contrast-high', 'contrast-yellow');
+        if (savedContrast === 'high') {
+            document.body.classList.add('contrast-high');
+        } else if (savedContrast === 'yellow') {
+            document.body.classList.add('contrast-yellow');
+        }
+        
+        // Update active state
+        document.querySelectorAll('.contrast-option').forEach(opt => {
+            opt.classList.remove('active');
+        });
+        const activeOption = document.querySelector(`.contrast-option[onclick*="${savedContrast}"]`);
+        if (activeOption) {
+            activeOption.classList.add('active');
+        }
+    }
+    
+    // Load text size
+    const savedTextSize = localStorage.getItem('exam_text_size_{{ exam.id }}');
+    if (savedTextSize) {
+        currentTextSize = parseInt(savedTextSize);
+        document.getElementById('textSizeSlider').value = savedTextSize;
+        updateTextSize(savedTextSize);
+    }
+}
+
+function closeModalOnOutsideClick(event, modalId) {
+    if (event.target.id === modalId) {
+        document.getElementById(modalId).classList.remove('show');
+    }
+}
+
+function toggleNotes() {
+    const panel = document.getElementById('notesPanel');
+    panel.classList.toggle('show');
+    
+    if (panel.classList.contains('show')) {
+        loadNotes();
+        renderNotes();
+    }
+}
+
+function addToNotes() {
+    let selectedText = '';
+    
+    // If clicked on yellow highlight
+    if (currentHighlightElement) {
+        selectedText = currentHighlightElement.textContent.trim();
+        
+        // Change color from yellow to blue
+        currentHighlightElement.classList.remove('yellow');
+        currentHighlightElement.classList.add('blue');
+        saveHighlights();
+    }
+    // If text is selected
+    else if (currentSelection) {
+        selectedText = currentSelection.toString().trim();
+        
+        // Highlight with blue color
+        try {
+            const range = currentSelection.getRangeAt(0);
+            const span = document.createElement('span');
+            span.className = 'highlight blue';
+            span.appendChild(range.extractContents());
+            range.insertNode(span);
+            
+            // Save highlights to localStorage
+            saveHighlights();
+        } catch (e) {
+            console.error('Highlight error:', e);
+        }
+    }
+    
+    if (!selectedText) return;
+    
+    // Create new note
+    const note = {
+        id: Date.now(),
+        quote: selectedText,
+        comment: '',
+        timestamp: new Date().toISOString(),
+        isEditing: true
+    };
+    
+    notesData.push(note);
+    saveNotes();
+    
+    // Open notes panel and render
+    document.getElementById('notesPanel').classList.add('show');
+    renderNotes();
+    
+    // Hide toolbar
+    document.getElementById('highlightToolbar').classList.remove('show');
+    currentSelection = null;
+    currentHighlightElement = null;
+    window.getSelection().removeAllRanges();
+}
+
+function renderNotes() {
+    const container = document.getElementById('notesContent');
+    
+    if (notesData.length === 0) {
+        container.innerHTML = `
+            <div class="notes-empty">
+                <i class="bi bi-journal-text"></i>
+                <p>No notes yet. Select text and click "Add to Notes"</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = notesData.map(note => {
+        if (note.isEditing) {
+            return `
+                <div class="note-item" data-note-id="${note.id}">
+                    <div class="note-quote">"${escapeHtml(note.quote)}"</div>
+                    <textarea class="note-comment-input" placeholder="Add your comment..." id="comment-${note.id}">${escapeHtml(note.comment)}</textarea>
+                    <div class="note-actions">
+                        <button class="btn-note-action btn-note-save" onclick="saveNoteComment(${note.id})">
+                            <i class="bi bi-check"></i> Save
+                        </button>
+                        <button class="btn-note-action btn-note-cancel" onclick="cancelNoteEdit(${note.id})">
+                            <i class="bi bi-x"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="note-item" data-note-id="${note.id}">
+                    <div class="note-quote">"${escapeHtml(note.quote)}"</div>
+                    ${note.comment ? `<div class="note-comment">${escapeHtml(note.comment)}</div>` : ''}
+                    <div class="note-timestamp">
+                        <i class="bi bi-clock"></i> ${formatTimestamp(note.timestamp)}
+                    </div>
+                    <div class="note-actions">
+                        <button class="btn-note-action btn-note-edit" onclick="editNote(${note.id})">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        <button class="btn-note-action btn-note-delete" onclick="deleteNote(${note.id})">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+    }).join('');
+}
+
+function saveNoteComment(noteId) {
+    const note = notesData.find(n => n.id === noteId);
+    if (!note) return;
+    
+    const commentInput = document.getElementById(`comment-${noteId}`);
+    if (commentInput) {
+        note.comment = commentInput.value.trim();
+        note.isEditing = false;
+        saveNotes();
+        renderNotes();
+    }
+}
+
+function cancelNoteEdit(noteId) {
+    const note = notesData.find(n => n.id === noteId);
+    if (!note) return;
+    
+    // If it's a new note without comment, delete it
+    if (!note.comment) {
+        notesData = notesData.filter(n => n.id !== noteId);
+    } else {
+        note.isEditing = false;
+    }
+    
+    saveNotes();
+    renderNotes();
+}
+
+function editNote(noteId) {
+    const note = notesData.find(n => n.id === noteId);
+    if (!note) return;
+    
+    note.isEditing = true;
+    renderNotes();
+    
+    // Focus on textarea
+    setTimeout(() => {
+        const textarea = document.getElementById(`comment-${noteId}`);
+        if (textarea) {
+            textarea.focus();
+            textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+        }
+    }, 100);
+}
+
+function deleteNote(noteId) {
+    if (confirm('Are you sure you want to delete this note?')) {
+        notesData = notesData.filter(n => n.id !== noteId);
+        saveNotes();
+        renderNotes();
+    }
+}
+
+function clearAllNotes() {
+    if (confirm('Are you sure you want to clear all notes?')) {
+        notesData = [];
+        localStorage.removeItem('exam_notes_{{ exam.id }}');
+        renderNotes();
+    }
+}
+
+function loadNotes() {
+    const saved = localStorage.getItem('exam_notes_{{ exam.id }}');
+    if (saved) {
+        try {
+            notesData = JSON.parse(saved);
+        } catch (e) {
+            notesData = [];
+        }
+    }
+}
+
+function saveNotes() {
+    localStorage.setItem('exam_notes_{{ exam.id }}', JSON.stringify(notesData));
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000); // seconds
+    
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff / 60) + ' min ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
+    
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}
+
+// Auto-save notes
+document.addEventListener('DOMContentLoaded', function() {
+    // Clear previous exam data when page loads (fresh start)
+    // This prevents cached highlights and notes from previous attempts
+    localStorage.removeItem('exam_highlights_{{ exam.id }}');
+    localStorage.removeItem('exam_notes_{{ exam.id }}');
+    
+    // Load saved settings (contrast and text size should persist)
+    loadSettings();
+});
+
+// Hide toolbar when clicking outside
+document.addEventListener('click', function(e) {
+    const toolbar = document.getElementById('highlightToolbar');
+    if (!toolbar.contains(e.target) && !window.getSelection().toString()) {
+        toolbar.classList.remove('show');
+    }
+});
+
+function submitExam(autoSubmit = false) {
+    if (isBlocked && !autoSubmit) {
+        showWarning('Exam blocked', 'Enter password first to resume exam.');
+        return;
+    }
+    
+    if (!autoSubmit && !confirm('Are you sure you want to finish the exam?\n\nWarning: You cannot return after finishing!')) {
         return;
     }
     
@@ -1309,7 +3014,6 @@ function submitExam(autoSubmit = false) {
         started_at: startedAt
     };
     
-    // Exit fullscreen before submitting
     exitFullscreen();
     
     fetch('{% url "submit_exam" %}', {
@@ -1320,20 +3024,22 @@ function submitExam(autoSubmit = false) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            // Ensure fullscreen is exited before redirect
+            // Clear saved highlights and notes
+            localStorage.removeItem('exam_highlights_{{ exam.id }}');
+            localStorage.removeItem('exam_notes_{{ exam.id }}');
+            
             setTimeout(() => {
                 window.location.href = '/results/' + data.result_id + '/';
             }, 300);
         } else {
-            alert('Xatolik: ' + data.error);
+            alert('Error: ' + data.error);
         }
     })
     .catch(err => {
-        alert('Xatolik yuz berdi: ' + err.message);
+        alert('Error occurred: ' + err.message);
     });
 }
 
-// Function to exit fullscreen
 function exitFullscreen() {
     if (document.exitFullscreen) {
         document.exitFullscreen();
@@ -1344,14 +3050,6 @@ function exitFullscreen() {
     } else if (document.msExitFullscreen) {
         document.msExitFullscreen();
     }
-}
-</script>
-            alert('Xatolik: ' + data.error);
-        }
-    })
-    .catch(err => {
-        alert('Xatolik yuz berdi: ' + err.message);
-    });
 }
 </script>
 </body>
