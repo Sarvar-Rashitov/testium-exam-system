@@ -23,12 +23,12 @@ urlpatterns = [
     path('teachers/<int:pk>/delete/', teacher_delete_view, name='teacher_delete'),
     path('teachers/statistics/', teacher_statistics_view, name='teacher_statistics'),
     
-    # Group URLs
-    path('groups/', group_list_view, name='group_list'),
-    path('groups/create/', group_create_view, name='group_create'),
-    path('groups/<int:pk>/', group_detail_view, name='group_detail'),
-    path('groups/<int:pk>/edit/', group_edit_view, name='group_edit'),
-    path('groups/<int:pk>/delete/', group_delete_view, name='group_delete'),
+    # Student Group URLs (O'quvchilar guruhlari)
+    path('student-groups/', group_list_view, name='group_list'),
+    path('student-groups/create/', group_create_view, name='group_create'),
+    path('student-groups/<int:pk>/', group_detail_view, name='group_detail'),
+    path('student-groups/<int:pk>/edit/', group_edit_view, name='group_edit'),
+    path('student-groups/<int:pk>/delete/', group_delete_view, name='group_delete'),
     
     # Settings URLs
     path('settings/', settings_view, name='settings'),
