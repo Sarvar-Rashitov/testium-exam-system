@@ -1,0 +1,331 @@
+{% extends 'base.html' %}
+{% block title %}Guruhlar - Testium{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-container {
+        padding: 32px;
+    }
+
+    .page-header {
+        background: white;
+        padding: 32px;
+        border-radius: 20px;
+        margin-bottom: 32px;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-primary {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4F46E5, #6366F1);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .groups-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+    }
+
+    .group-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .group-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .group-header {
+        text-align: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .status-badge.active {
+        background: #d1fae5;
+        color: #10b981;
+    }
+
+    .status-badge.inactive {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .group-name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+    }
+
+    .group-teacher {
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+    .group-info {
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        font-size: 14px;
+        color: #6b7280;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-item i {
+        color: #4F46E5;
+        font-size: 16px;
+        width: 20px;
+    }
+
+    .info-item strong {
+        color: #1f2937;
+        font-weight: 600;
+        min-width: 100px;
+    }
+
+    .student-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        background: #eff6ff;
+        color: #4F46E5;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .group-actions {
+        display: flex;
+        gap: 8px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .btn-view {
+        background: #eff6ff;
+        color: #4F46E5;
+    }
+
+    .btn-view:hover {
+        background: #dbeafe;
+    }
+
+    .btn-edit {
+        background: #eff6ff;
+        color: #4F46E5;
+    }
+
+    .btn-edit:hover {
+        background: #dbeafe;
+    }
+
+    .btn-delete {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .btn-delete:hover {
+        background: #fee2e2;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 24px;
+        background: white;
+        border-radius: 20px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 24px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        color: #9ca3af;
+    }
+
+    .empty-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 12px;
+    }
+
+    .empty-text {
+        font-size: 16px;
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .groups-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-people"></i>
+            Guruhlar
+        </h1>
+        <a href="{% url 'group_create' %}" class="btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            Yangi guruh
+        </a>
+    </div>
+
+    {% if groups %}
+    <div class="groups-grid">
+        {% for group in groups %}
+        <div class="group-card">
+            <div class="group-header">
+                <span class="status-badge {% if group.is_ongoing %}active{% else %}inactive{% endif %}">
+                    {% if group.is_ongoing %}Davom etmoqda{% else %}Tugagan{% endif %}
+                </span>
+                <h3 class="group-name">{{ group.name }}</h3>
+                <p class="group-teacher">{{ group.teacher.full_name }}</p>
+            </div>
+            
+            <div class="group-info">
+                <div class="info-item">
+                    <i class="bi bi-calendar-week"></i>
+                    <strong>Dars kunlari:</strong>
+                    <span>{{ group.weekdays_display }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <i class="bi bi-clock"></i>
+                    <strong>Vaqt:</strong>
+                    <span>{{ group.lesson_time|time:"H:i" }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <i class="bi bi-calendar-range"></i>
+                    <strong>Davr:</strong>
+                    <span>{{ group.start_date|date:"d.m.Y" }} - {{ group.end_date|date:"d.m.Y" }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <i class="bi bi-people"></i>
+                    <strong>O'quvchilar:</strong>
+                    <span class="student-count">{{ group.student_count }}</span>
+                </div>
+            </div>
+            
+            <div class="group-actions">
+                <a href="{% url 'group_detail' group.pk %}" class="btn-action btn-view">
+                    <i class="bi bi-eye"></i>
+                    Ko'rish
+                </a>
+                <a href="{% url 'group_edit' group.pk %}" class="btn-action btn-edit">
+                    <i class="bi bi-pencil"></i>
+                    Tahrirlash
+                </a>
+                <a href="{% url 'group_delete' group.pk %}" class="btn-action btn-delete">
+                    <i class="bi bi-trash"></i>
+                    O'chirish
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <h2 class="empty-title">Hozircha guruhlar yo'q</h2>
+        <p class="empty-text">Birinchi guruhni yarating</p>
+        <a href="{% url 'group_create' %}" class="btn-primary">
+            <i class="bi bi-plus-circle"></i>
+            Yangi guruh
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

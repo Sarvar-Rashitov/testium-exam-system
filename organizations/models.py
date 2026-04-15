@@ -94,6 +94,66 @@ class Teacher(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
+class Group(models.Model):
+    """Group model for organizing students"""
+    WEEKDAY_CHOICES = [
+        ('monday', 'Dushanba'),
+        ('tuesday', 'Seshanba'),
+        ('wednesday', 'Chorshanba'),
+        ('thursday', 'Payshanba'),
+        ('friday', 'Juma'),
+        ('saturday', 'Shanba'),
+        ('sunday', 'Yakshanba'),
+    ]
+    
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='student_groups')
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='teaching_groups', verbose_name="O'qituvchi")
+    name = models.CharField(max_length=200, verbose_name="Guruh nomi")
+    
+    # Schedule
+    weekdays = models.CharField(max_length=200, verbose_name="Dars kunlari", help_text="Masalan: monday,wednesday,friday")
+    lesson_time = models.TimeField(verbose_name="Dars vaqti", help_text="Masalan: 14:00")
+    
+    # Dates
+    start_date = models.DateField(verbose_name="Boshlanish sanasi")
+    end_date = models.DateField(verbose_name="Tugash sanasi")
+    
+    # Additional info
+    description = models.TextField(blank=True, verbose_name="Tavsif")
+    is_active = models.BooleanField(default=True, verbose_name="Faol")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'groups'
+        ordering = ['-created_at']
+        verbose_name = "Guruh"
+        verbose_name_plural = "Guruhlar"
+    
+    def __str__(self):
+        return f"{self.name} - {self.teacher.full_name}"
+    
+    @property
+    def student_count(self):
+        """Count students in this group"""
+        return self.students.count()
+    
+    @property
+    def weekdays_display(self):
+        """Display weekdays in readable format"""
+        days_dict = dict(self.WEEKDAY_CHOICES)
+        days = self.weekdays.split(',')
+        return ', '.join([days_dict.get(day.strip(), day) for day in days if day.strip()])
+    
+    @property
+    def is_ongoing(self):
+        """Check if group is currently active"""
+        from django.utils import timezone
+        today = timezone.now().date()
+        return self.start_date <= today <= self.end_date
+
+
 
 @receiver(post_save, sender=Organization)
 def create_organization_settings(sender, instance, created, **kwargs):

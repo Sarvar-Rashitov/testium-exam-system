@@ -1,6 +1,6 @@
 from django import forms
 from .models import Student
-from organizations.models import Teacher
+from organizations.models import Teacher, Group
 
 
 class StudentRegistrationForm(forms.ModelForm):
@@ -16,12 +16,17 @@ class StudentRegistrationForm(forms.ModelForm):
                 organization=organization, 
                 is_active=True
             )
+            self.fields['group'].queryset = Group.objects.filter(
+                organization=organization,
+                is_active=True
+            )
         else:
             self.fields['teacher'].queryset = Teacher.objects.none()
+            self.fields['group'].queryset = Group.objects.none()
     
     class Meta:
         model = Student
-        fields = ('first_name', 'last_name', 'phone', 'telegram_username', 'email', 'student_type', 'teacher')
+        fields = ('first_name', 'last_name', 'phone', 'telegram_username', 'email', 'student_type', 'teacher', 'group')
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -51,8 +56,12 @@ class StudentRegistrationForm(forms.ModelForm):
             }),
             'teacher': forms.Select(attrs={
                 'class': 'form-control'
+            }),
+            'group': forms.Select(attrs={
+                'class': 'form-control'
             })
         }
         labels = {
-            'teacher': "O'qituvchini tanlang"
+            'teacher': "O'qituvchini tanlang",
+            'group': "Guruhni tanlang (ixtiyoriy)"
         }

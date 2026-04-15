@@ -196,14 +196,28 @@ class ShortAnswerQuestion(BaseQuestion):
 
 
 class DiagramLabelingQuestion(BaseQuestion):
-    """Diagram labeling"""
-    diagram_image = models.ImageField(upload_to='diagrams/')
-    label_position = models.CharField(max_length=50, help_text='Position on diagram')
-    correct_answer = models.CharField(max_length=255)
-    alternative_answers = models.TextField(blank=True, help_text='One per line')
+    """Diagram labeling with multiple numbered labels"""
+    diagram_image = models.ImageField(upload_to='diagrams/', help_text='Rasm (diagram/map/table)')
+    instruction = models.CharField(max_length=500, blank=True, null=True, help_text='Masalan: Label the diagram below')
     
     class Meta:
         unique_together = ['question_group', 'question_number']
+        verbose_name = 'Diagram Labeling Question'
+
+
+class ImageLabel(models.Model):
+    """Individual label for diagram/map/table - represents numbered positions (1, 2, 3...)"""
+    question = models.ForeignKey(DiagramLabelingQuestion, on_delete=models.CASCADE, related_name='labels')
+    label_number = models.IntegerField(help_text='Rasm ichidagi raqam (1, 2, 3...)')
+    correct_answer = models.CharField(max_length=255, help_text='To\'g\'ri javob')
+    alternative_answers = models.TextField(blank=True, help_text='Har bir qatorda bitta (ixtiyoriy)')
+    
+    class Meta:
+        ordering = ['label_number']
+        unique_together = ['question', 'label_number']
+    
+    def __str__(self):
+        return f"Label {self.label_number}: {self.correct_answer}"
 
 
 class SummaryCompletionQuestion(BaseQuestion):

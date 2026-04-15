@@ -7,6 +7,10 @@ from .views_mvt import (
     question_tfng_create_view, question_ynng_create_view,
     question_sentence_create_view, question_short_answer_create_view,
     question_diagram_create_view, question_summary_create_view,
+    question_note_create_view, question_table_create_view,
+    question_flowchart_create_view, question_matching_headings_create_view,
+    question_matching_information_create_view, question_matching_features_create_view,
+    question_matching_sentence_endings_create_view,
     generate_link_view, delete_link_view, exam_start_view, exam_take_view
 )
 
@@ -37,6 +41,13 @@ urlpatterns = [
     path('groups/<int:group_pk>/questions/short-answer/create/', question_short_answer_create_view, name='question_short_answer_create'),
     path('groups/<int:group_pk>/questions/diagram/create/', question_diagram_create_view, name='question_diagram_create'),
     path('groups/<int:group_pk>/questions/summary/create/', question_summary_create_view, name='question_summary_create'),
+    path('groups/<int:group_pk>/questions/note/create/', question_note_create_view, name='question_note_create'),
+    path('groups/<int:group_pk>/questions/table/create/', question_table_create_view, name='question_table_create'),
+    path('groups/<int:group_pk>/questions/flowchart/create/', question_flowchart_create_view, name='question_flowchart_create'),
+    path('groups/<int:group_pk>/questions/matching-headings/create/', question_matching_headings_create_view, name='question_matching_headings_create'),
+    path('groups/<int:group_pk>/questions/matching-information/create/', question_matching_information_create_view, name='question_matching_information_create'),
+    path('groups/<int:group_pk>/questions/matching-features/create/', question_matching_features_create_view, name='question_matching_features_create'),
+    path('groups/<int:group_pk>/questions/matching-sentence-endings/create/', question_matching_sentence_endings_create_view, name='question_matching_sentence_endings_create'),
     
     # Question delete
     path('groups/<int:group_pk>/questions/<int:pk>/delete/', question_delete_view, name='question_delete'),

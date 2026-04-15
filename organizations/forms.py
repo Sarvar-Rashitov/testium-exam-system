@@ -75,7 +75,7 @@ class OrganizationLoginForm(AuthenticationForm):
     }))
 
 
-from .models import OrganizationSettings, Teacher
+from .models import OrganizationSettings, Teacher, Group
 
 
 class ProfileUpdateForm(forms.ModelForm):
@@ -124,3 +124,46 @@ class TeacherForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'subject': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+
+class GroupForm(forms.ModelForm):
+    """Group form"""
+    weekdays = forms.MultipleChoiceField(
+        choices=Group.WEEKDAY_CHOICES,
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        label="Dars kunlari"
+    )
+    
+    class Meta:
+        model = Group
+        fields = ['teacher', 'name', 'weekdays', 'lesson_time', 'start_date', 'end_date', 'description', 'is_active']
+        widgets = {
+            'teacher': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Masalan: IELTS A1 guruh'}),
+            'lesson_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'start_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Guruh haqida qo\'shimcha ma\'lumot'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        organization = kwargs.pop('organization', None)
+        super().__init__(*args, **kwargs)
+        if organization:
+            self.fields['teacher'].queryset = Teacher.objects.filter(organization=organization, is_active=True)
+    
+    def clean_weekdays(self):
+        weekdays = self.cleaned_data.get('weekdays')
+        if weekdays:
+            return ','.join(weekdays)
+        return ''
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        
+        if start_date and end_date and start_date >= end_date:
+            raise ValidationError('Tugash sanasi boshlanish sanasidan kechroq bo\'lishi kerak.')
+        
+        return cleaned_data

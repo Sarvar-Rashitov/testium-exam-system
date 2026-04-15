@@ -4,7 +4,7 @@ from .models import (
     MultipleChoiceSingleQuestion, MultipleChoiceMultipleQuestion,
     TrueFalseNotGivenQuestion, YesNoNotGivenQuestion,
     SentenceCompletionQuestion, ShortAnswerQuestion,
-    DiagramLabelingQuestion, SummaryCompletionQuestion,
+    DiagramLabelingQuestion, ImageLabel, SummaryCompletionQuestion,
     NoteCompletionQuestion, TableCompletionQuestion,
     FlowchartCompletionQuestion, MatchingHeadingsQuestion,
     MatchingInformationQuestion, MatchingFeaturesQuestion,
@@ -169,18 +169,42 @@ class ShortAnswerForm(forms.ModelForm):
 
 
 class DiagramLabelingForm(forms.ModelForm):
-    """Diagram labeling form"""
+    """Diagram labeling form - main question"""
     class Meta:
         model = DiagramLabelingQuestion
-        fields = ('question_number', 'diagram_image', 'label_position', 'correct_answer', 'alternative_answers', 'points', 'explanation')
+        fields = ('question_number', 'diagram_image', 'instruction', 'points', 'explanation')
         widgets = {
             'question_number': forms.NumberInput(attrs={'class': 'form-control'}),
-            'label_position': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Masalan: top-left, center'}),
-            'correct_answer': forms.TextInput(attrs={'class': 'form-control'}),
-            'alternative_answers': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Har bir qatorda bitta (ixtiyoriy)'}),
+            'instruction': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Masalan: Label the diagram below'}),
             'points': forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
             'explanation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ixtiyoriy'})
         }
+
+
+class ImageLabelForm(forms.ModelForm):
+    """Form for individual label in diagram/map/table"""
+    class Meta:
+        model = ImageLabel
+        fields = ('label_number', 'correct_answer', 'alternative_answers')
+        widgets = {
+            'label_number': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Rasm ichidagi raqam'}),
+            'correct_answer': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'To\'g\'ri javob'}),
+            'alternative_answers': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Har bir qatorda bitta (ixtiyoriy)'})
+        }
+
+
+# Formset for managing multiple labels
+from django.forms import inlineformset_factory
+
+ImageLabelFormSet = inlineformset_factory(
+    DiagramLabelingQuestion,
+    ImageLabel,
+    form=ImageLabelForm,
+    extra=3,
+    can_delete=True,
+    min_num=1,
+    validate_min=True
+)
 
 
 class SummaryCompletionForm(forms.ModelForm):
@@ -226,4 +250,111 @@ class ExamLinkForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             })
+        }
+
+
+class NoteCompletionForm(forms.ModelForm):
+    """Note completion form"""
+    class Meta:
+        model = NoteCompletionQuestion
+        fields = ('question_number', 'note_text', 'correct_answer', 'alternative_answers', 'max_words', 'points', 'explanation')
+        widgets = {
+            'question_number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'note_text': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Bo\'sh joy uchun _____ ishlating'}),
+            'correct_answer': forms.TextInput(attrs={'class': 'form-control'}),
+            'alternative_answers': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Har bir qatorda bitta (ixtiyoriy)'}),
+            'max_words': forms.NumberInput(attrs={'class': 'form-control', 'value': 2}),
+            'points': forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
+            'explanation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ixtiyoriy'})
+        }
+
+
+class TableCompletionForm(forms.ModelForm):
+    """Table completion form"""
+    class Meta:
+        model = TableCompletionQuestion
+        fields = ('question_number', 'row_header', 'column_header', 'cell_context', 'correct_answer', 'alternative_answers', 'max_words', 'points', 'explanation')
+        widgets = {
+            'question_number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'row_header': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Qator sarlavhasi'}),
+            'column_header': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ustun sarlavhasi'}),
+            'cell_context': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Katak konteksti'}),
+            'correct_answer': forms.TextInput(attrs={'class': 'form-control'}),
+            'alternative_answers': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Har bir qatorda bitta (ixtiyoriy)'}),
+            'max_words': forms.NumberInput(attrs={'class': 'form-control', 'value': 2}),
+            'points': forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
+            'explanation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ixtiyoriy'})
+        }
+
+
+class FlowchartCompletionForm(forms.ModelForm):
+    """Flowchart completion form"""
+    class Meta:
+        model = FlowchartCompletionQuestion
+        fields = ('question_number', 'flowchart_image', 'box_position', 'box_context', 'correct_answer', 'alternative_answers', 'max_words', 'points', 'explanation')
+        widgets = {
+            'question_number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'box_position': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Quti pozitsiyasi'}),
+            'box_context': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Quti konteksti'}),
+            'correct_answer': forms.TextInput(attrs={'class': 'form-control'}),
+            'alternative_answers': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Har bir qatorda bitta (ixtiyoriy)'}),
+            'max_words': forms.NumberInput(attrs={'class': 'form-control', 'value': 2}),
+            'points': forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
+            'explanation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ixtiyoriy'})
+        }
+
+
+class MatchingHeadingsForm(forms.ModelForm):
+    """Matching headings form"""
+    class Meta:
+        model = MatchingHeadingsQuestion
+        fields = ('question_number', 'paragraph_label', 'correct_heading', 'points', 'explanation')
+        widgets = {
+            'question_number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'paragraph_label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'A, B, C...'}),
+            'correct_heading': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'i, ii, iii...'}),
+            'points': forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
+            'explanation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ixtiyoriy'})
+        }
+
+
+class MatchingInformationForm(forms.ModelForm):
+    """Matching information form"""
+    class Meta:
+        model = MatchingInformationQuestion
+        fields = ('question_number', 'information_text', 'correct_paragraph', 'points', 'explanation')
+        widgets = {
+            'question_number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'information_text': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'correct_paragraph': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'A, B, C...'}),
+            'points': forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
+            'explanation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ixtiyoriy'})
+        }
+
+
+class MatchingFeaturesForm(forms.ModelForm):
+    """Matching features form"""
+    class Meta:
+        model = MatchingFeaturesQuestion
+        fields = ('question_number', 'statement', 'correct_feature', 'points', 'explanation')
+        widgets = {
+            'question_number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'statement': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'correct_feature': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'A, B, C...'}),
+            'points': forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
+            'explanation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ixtiyoriy'})
+        }
+
+
+class MatchingSentenceEndingsForm(forms.ModelForm):
+    """Matching sentence endings form"""
+    class Meta:
+        model = MatchingSentenceEndingsQuestion
+        fields = ('question_number', 'sentence_start', 'correct_ending', 'points', 'explanation')
+        widgets = {
+            'question_number': forms.NumberInput(attrs={'class': 'form-control'}),
+            'sentence_start': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'correct_ending': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'A, B, C...'}),
+            'points': forms.NumberInput(attrs={'class': 'form-control', 'value': 1}),
+            'explanation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Ixtiyoriy'})
         }

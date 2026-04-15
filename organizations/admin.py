@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Organization, Teacher, OrganizationSettings
+from .models import Organization, Teacher, OrganizationSettings, Group
 
 
 @admin.register(Organization)
@@ -57,4 +57,33 @@ class TeacherAdmin(admin.ModelAdmin):
             'fields': ('is_active',)
         }),
     )
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('name', 'teacher', 'organization', 'lesson_time', 'student_count', 'is_ongoing', 'is_active', 'created_at')
+    list_filter = ('is_active', 'organization', 'teacher', 'created_at')
+    search_fields = ('name', 'teacher__first_name', 'teacher__last_name', 'description')
+    ordering = ('-created_at',)
+    
+    fieldsets = (
+        ('Asosiy ma\'lumotlar', {
+            'fields': ('organization', 'teacher', 'name', 'description')
+        }),
+        ('Jadval', {
+            'fields': ('weekdays', 'lesson_time')
+        }),
+        ('Sanalar', {
+            'fields': ('start_date', 'end_date')
+        }),
+        ('Holat', {
+            'fields': ('is_active',)
+        }),
+    )
+    
+    readonly_fields = ('created_at', 'updated_at')
+    
+    def student_count(self, obj):
+        return obj.student_count
+    student_count.short_description = "O'quvchilar soni"
 

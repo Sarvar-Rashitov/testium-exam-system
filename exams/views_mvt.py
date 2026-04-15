@@ -8,14 +8,14 @@ from .models import (
     MultipleChoiceSingleQuestion, MultipleChoiceMultipleQuestion,
     TrueFalseNotGivenQuestion, YesNoNotGivenQuestion,
     SentenceCompletionQuestion, ShortAnswerQuestion,
-    DiagramLabelingQuestion, SummaryCompletionQuestion,
+    DiagramLabelingQuestion, ImageLabel, SummaryCompletionQuestion,
 )
 from .forms import (
     ExamForm, SectionForm, QuestionGroupForm, ExamLinkForm,
     MultipleChoiceSingleForm, MultipleChoiceMultipleForm,
     TrueFalseNotGivenForm, YesNoNotGivenForm,
     SentenceCompletionForm, ShortAnswerForm,
-    DiagramLabelingForm, SummaryCompletionForm,
+    DiagramLabelingForm, ImageLabelFormSet, SummaryCompletionForm,
 )
 from students.forms import StudentRegistrationForm
 from students.models import Student
@@ -163,6 +163,13 @@ def question_group_create_view(request, section_pk):
 @login_required
 def question_group_detail_view(request, pk):
     """Question group detail - shows all questions in this group"""
+    from .models import (
+        NoteCompletionQuestion, TableCompletionQuestion,
+        FlowchartCompletionQuestion, MatchingHeadingsQuestion,
+        MatchingInformationQuestion, MatchingFeaturesQuestion,
+        MatchingSentenceEndingsQuestion
+    )
+    
     group = get_object_or_404(QuestionGroup, pk=pk, section__exam__organization=request.user)
     
     # Get questions based on type
@@ -183,6 +190,20 @@ def question_group_detail_view(request, pk):
         questions = group.diagramlabelingquestion_set.all()
     elif group.question_type == 'summary_completion':
         questions = group.summarycompletionquestion_set.all()
+    elif group.question_type == 'note_completion':
+        questions = group.notecompletionquestion_set.all()
+    elif group.question_type == 'table_completion':
+        questions = group.tablecompletionquestion_set.all()
+    elif group.question_type == 'flowchart_completion':
+        questions = group.flowchartcompletionquestion_set.all()
+    elif group.question_type == 'matching_headings':
+        questions = group.matchingheadingsquestion_set.all()
+    elif group.question_type == 'matching_information':
+        questions = group.matchinginformationquestion_set.all()
+    elif group.question_type == 'matching_features':
+        questions = group.matchingfeaturesquestion_set.all()
+    elif group.question_type == 'matching_sentence_endings':
+        questions = group.matchingsentenceendingsquestion_set.all()
     
     context = {
         'group': group,
@@ -209,6 +230,13 @@ def question_create_view(request, group_pk):
         'short_answer': 'question_short_answer_create',
         'diagram_labeling': 'question_diagram_create',
         'summary_completion': 'question_summary_create',
+        'note_completion': 'question_note_create',
+        'table_completion': 'question_table_create',
+        'flowchart_completion': 'question_flowchart_create',
+        'matching_headings': 'question_matching_headings_create',
+        'matching_information': 'question_matching_information_create',
+        'matching_features': 'question_matching_features_create',
+        'matching_sentence_endings': 'question_matching_sentence_endings_create',
     }
     
     url_name = type_url_map.get(group.question_type)
@@ -420,30 +448,39 @@ def question_short_answer_create_view(request, group_pk):
 
 @login_required
 def question_diagram_create_view(request, group_pk):
-    """Create Diagram Labeling question"""
+    """Create Diagram Labeling question with multiple labels"""
     group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
     
     if request.method == 'POST':
         form = DiagramLabelingForm(request.POST, request.FILES)
-        if form.is_valid():
+        formset = ImageLabelFormSet(request.POST, prefix='labels')
+        
+        if form.is_valid() and formset.is_valid():
             question = form.save(commit=False)
             question.question_group = group
             question.save()
-            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            
+            # Save labels
+            formset.instance = question
+            formset.save()
+            
+            messages.success(request, f'Savol #{question.question_number} va {formset.total_form_count()} ta label muvaffaqiyatli qo\'shildi!')
             if 'save_and_add' in request.POST:
                 return redirect('question_diagram_create', group_pk=group.pk)
             return redirect('question_group_detail', pk=group.pk)
     else:
         initial = {'question_number': _get_next_question_number(group)}
         form = DiagramLabelingForm(initial=initial)
+        formset = ImageLabelFormSet(prefix='labels')
     
     context = _get_question_context(group)
     context.update({
         'form': form,
+        'formset': formset,
         'title': 'Diagram Labeling savol qo\'shish',
         'question_type_display': 'Diagram Labeling',
     })
-    return render(request, 'exams/question_type_form.html', context)
+    return render(request, 'exams/question_form_advanced.html', context)
 
 
 @login_required
@@ -477,6 +514,13 @@ def question_summary_create_view(request, group_pk):
 @login_required
 def question_delete_view(request, group_pk, pk):
     """Delete question from any question type"""
+    from .models import (
+        NoteCompletionQuestion, TableCompletionQuestion,
+        FlowchartCompletionQuestion, MatchingHeadingsQuestion,
+        MatchingInformationQuestion, MatchingFeaturesQuestion,
+        MatchingSentenceEndingsQuestion
+    )
+    
     group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
     
     # Find and delete the question from the correct model
@@ -490,6 +534,13 @@ def question_delete_view(request, group_pk, pk):
         'short_answer': ShortAnswerQuestion,
         'diagram_labeling': DiagramLabelingQuestion,
         'summary_completion': SummaryCompletionQuestion,
+        'note_completion': NoteCompletionQuestion,
+        'table_completion': TableCompletionQuestion,
+        'flowchart_completion': FlowchartCompletionQuestion,
+        'matching_headings': MatchingHeadingsQuestion,
+        'matching_information': MatchingInformationQuestion,
+        'matching_features': MatchingFeaturesQuestion,
+        'matching_sentence_endings': MatchingSentenceEndingsQuestion,
     }
     
     model_class = model_map.get(group.question_type)
@@ -690,9 +741,17 @@ def exam_take_view(request, token, student_id):
                     q_data['text'] = q.summary_text
                     q_data['max_words'] = q.max_words
                 elif group.question_type == 'diagram_labeling':
-                    q_data['text'] = f"Label position: {q.label_position}"
+                    q_data['text'] = q.instruction if q.instruction else "Label the diagram"
                     if q.diagram_image:
                         q_data['diagram_image'] = q.diagram_image.url
+                    # Get all labels for this diagram
+                    labels = []
+                    for label in q.labels.all().order_by('label_number'):
+                        labels.append({
+                            'number': label.label_number,
+                            'id': label.id
+                        })
+                    q_data['labels'] = labels
                 
                 group_info['questions'].append(q_data)
                 all_questions.append(q_data)
@@ -712,3 +771,220 @@ def exam_take_view(request, token, student_id):
     }
     
     return render(request, 'exams/exam_take.html', context)
+
+
+@login_required
+def question_note_create_view(request, group_pk):
+    """Create Note Completion question"""
+    from .forms import NoteCompletionForm
+    from .models import NoteCompletionQuestion
+    
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = NoteCompletionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_note_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = NoteCompletionForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Note Completion savol qo\'shish',
+        'question_type_display': 'Note Completion',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_table_create_view(request, group_pk):
+    """Create Table Completion question"""
+    from .forms import TableCompletionForm
+    from .models import TableCompletionQuestion
+    
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = TableCompletionForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_table_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = TableCompletionForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Table Completion savol qo\'shish',
+        'question_type_display': 'Table Completion',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_flowchart_create_view(request, group_pk):
+    """Create Flowchart Completion question"""
+    from .forms import FlowchartCompletionForm
+    from .models import FlowchartCompletionQuestion
+    
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = FlowchartCompletionForm(request.POST, request.FILES)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_flowchart_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = FlowchartCompletionForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Flowchart Completion savol qo\'shish',
+        'question_type_display': 'Flowchart Completion',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_matching_headings_create_view(request, group_pk):
+    """Create Matching Headings question"""
+    from .forms import MatchingHeadingsForm
+    from .models import MatchingHeadingsQuestion
+    
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = MatchingHeadingsForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_matching_headings_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = MatchingHeadingsForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Matching Headings savol qo\'shish',
+        'question_type_display': 'Matching Headings',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_matching_information_create_view(request, group_pk):
+    """Create Matching Information question"""
+    from .forms import MatchingInformationForm
+    from .models import MatchingInformationQuestion
+    
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = MatchingInformationForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_matching_information_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = MatchingInformationForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Matching Information savol qo\'shish',
+        'question_type_display': 'Matching Information',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_matching_features_create_view(request, group_pk):
+    """Create Matching Features question"""
+    from .forms import MatchingFeaturesForm
+    from .models import MatchingFeaturesQuestion
+    
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = MatchingFeaturesForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_matching_features_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = MatchingFeaturesForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Matching Features savol qo\'shish',
+        'question_type_display': 'Matching Features',
+    })
+    return render(request, 'exams/question_type_form.html', context)
+
+
+@login_required
+def question_matching_sentence_endings_create_view(request, group_pk):
+    """Create Matching Sentence Endings question"""
+    from .forms import MatchingSentenceEndingsForm
+    from .models import MatchingSentenceEndingsQuestion
+    
+    group = get_object_or_404(QuestionGroup, pk=group_pk, section__exam__organization=request.user)
+    
+    if request.method == 'POST':
+        form = MatchingSentenceEndingsForm(request.POST)
+        if form.is_valid():
+            question = form.save(commit=False)
+            question.question_group = group
+            question.save()
+            messages.success(request, f'Savol #{question.question_number} muvaffaqiyatli qo\'shildi!')
+            if 'save_and_add' in request.POST:
+                return redirect('question_matching_sentence_endings_create', group_pk=group.pk)
+            return redirect('question_group_detail', pk=group.pk)
+    else:
+        initial = {'question_number': _get_next_question_number(group)}
+        form = MatchingSentenceEndingsForm(initial=initial)
+    
+    context = _get_question_context(group)
+    context.update({
+        'form': form,
+        'title': 'Matching Sentence Endings savol qo\'shish',
+        'question_type_display': 'Matching Sentence Endings',
+    })
+    return render(request, 'exams/question_type_form.html', context)

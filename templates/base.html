@@ -461,6 +461,10 @@
                     <i class="bi bi-person-badge"></i>
                     <span>O'qituvchilar</span>
                 </a>
+                <a href="{% url 'group_list' %}" class="menu-item {% if 'group' in request.path %}active{% endif %}">
+                    <i class="bi bi-people"></i>
+                    <span>Guruhlar</span>
+                </a>
                 <a href="{% url 'results_list' %}" class="menu-item {% if request.resolver_match.url_name == 'results_list' or request.resolver_match.url_name == 'result_detail' %}active{% endif %}">
                     <i class="bi bi-graph-up"></i>
                     <span>Natijalar</span>

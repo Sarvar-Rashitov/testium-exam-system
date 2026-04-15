@@ -1,338 +1,142 @@
 {% extends 'base.html' %}
-{% block title %}{{ title }} - {{ exam.title }}{% endblock %}
-
-{% block extra_css %}
-<style>
-    .page-container {
-        padding: 32px;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .form-card {
-        background: white;
-        border-radius: 20px;
-        padding: 32px;
-        border: 1px solid #e5e7eb;
-    }
-
-    .form-header {
-        margin-bottom: 32px;
-    }
-
-    .form-title {
-        font-size: 28px;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 8px;
-    }
-
-    .form-subtitle {
-        font-size: 15px;
-        color: #6b7280;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .form-group {
-        margin-bottom: 24px;
-    }
-
-    .form-label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        color: #334155;
-        margin-bottom: 8px;
-    }
-
-    .form-label .required {
-        color: #dc2626;
-    }
-
-    .form-control, select, textarea {
-        width: 100%;
-        padding: 12px 16px;
-        font-size: 15px;
-        border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        background: #f8fafc;
-        color: #1e293b;
-        transition: all 0.3s ease;
-        outline: none;
-    }
-
-    .form-control:focus, select:focus, textarea:focus {
-        border-color: #4F46E5;
-        background: #ffffff;
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-    }
-
-    textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    .form-help {
-        font-size: 13px;
-        color: #6b7280;
-        margin-top: 6px;
-    }
-
-    .audio-section {
-        background: #eff6ff;
-        border: 2px solid #dbeafe;
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
-    }
-
-    .audio-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1e40af;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .content-area {
-        margin-top: 24px;
-    }
-
-    .template-card {
-        background: #f9fafb;
-        border: 2px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
-    }
-
-    .template-header {
-        font-size: 18px;
-        font-weight: 700;
-        color: #4F46E5;
-        margin-bottom: 20px;
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        margin-top: 32px;
-        padding-top: 24px;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .btn {
-        padding: 12px 24px;
-        border-radius: 12px;
-        border: none;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-    }
-
-    .btn-secondary {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-
-    .btn-secondary:hover {
-        background: #e5e7eb;
-        color: #4F46E5;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #4F46E5, #6366F1);
-        color: white;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
-    }
-
-    @media (max-width: 768px) {
-        .page-container {
-            padding: 20px;
-        }
-
-        .form-card {
-            padding: 24px;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .form-actions {
-            flex-direction: column;
-        }
-
-        .btn {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-</style>
-{% endblock %}
 
 {% block content %}
-<div class="page-container">
-    <div class="form-card">
-        <div class="form-header">
-            <h1 class="form-title">{{ title }}</h1>
-            <p class="form-subtitle">{{ exam.title }}</p>
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'exam_list' %}">Imtihonlar</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'exam_detail' exam.pk %}">{{ exam.title }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'question_group_detail' group.pk %}">{{ group.title }}</a></li>
+            <li class="breadcrumb-item active">{{ title }}</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">{{ title }}</h4>
+            <small>{{ question_type_display }}</small>
         </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="alert alert-info">
+                    <strong>Ko'rsatma:</strong> Rasm yuklang va rasm ichida raqamlangan joylar uchun javoblarni kiriting.
+                    Masalan, rasm ichida 1, 2, 3 raqamlari bo'lsa, har bir raqam uchun to'g'ri javobni yozing.
+                </div>
 
-        <form method="post" enctype="multipart/form-data" id="questionForm">
-            {% csrf_token %}
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">
-                        Module <span class="required">*</span>
-                    </label>
-                    {{ form.module }}
-                </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        Savol turi <span class="required">*</span>
-                    </label>
-                    {{ form.type }}
-                </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        Tartib <span class="required">*</span>
-                    </label>
-                    {{ form.order }}
-                </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        Ball <span class="required">*</span>
-                    </label>
-                    {{ form.points }}
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">
-                    Ko'rsatmalar <span class="required">*</span>
-                </label>
-                {{ form.instruction_text }}
-                <div class="form-help">Masalan: "Choose the correct answer" yoki "Complete the sentences"</div>
-            </div>
-
-            <div id="audioSection" class="audio-section" style="display: none;">
-                <h6 class="audio-title">
-                    <i class="bi bi-volume-up-fill"></i>
-                    Audio (Listening uchun)
-                </h6>
-                <div class="form-row">
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label class="form-label">Audio fayl yuklash</label>
-                        <input type="file" name="audio_file" class="form-control" accept="audio/*">
+                <!-- Main Question Fields -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Savol raqami</label>
+                            {{ form.question_number }}
+                            {% if form.question_number.errors %}
+                                <div class="text-danger">{{ form.question_number.errors }}</div>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label class="form-label">yoki Audio URL</label>
-                        {{ form.audio_url }}
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Ball</label>
+                            {{ form.points }}
+                            {% if form.points.errors %}
+                                <div class="text-danger">{{ form.points.errors }}</div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label class="form-label">Boshlanish vaqti (soniya)</label>
-                        {{ form.start_time }}
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label class="form-label">Tugash vaqti (soniya)</label>
-                        {{ form.end_time }}
-                    </div>
-                </div>
-            </div>
 
-            <div id="contentArea" class="content-area">
-                <div class="template-card">
-                    <div class="template-header">Savol turini tanlang</div>
-                    <p style="color: #6b7280;">Yuqorida savol turini tanlagandan keyin, bu yerda tegishli maydonlar paydo bo'ladi.</p>
+                <div class="mb-3">
+                    <label class="form-label">Diagram/Map/Table rasmi</label>
+                    {{ form.diagram_image }}
+                    {% if form.diagram_image.errors %}
+                        <div class="text-danger">{{ form.diagram_image.errors }}</div>
+                    {% endif %}
+                    <small class="form-text text-muted">Rasm ichida raqamlar (1, 2, 3...) bo'lishi kerak</small>
                 </div>
-            </div>
 
-            <div class="form-actions">
-                <a href="{% url 'exam_detail' exam.pk %}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i>
-                    Bekor qilish
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle"></i>
-                    Saqlash
-                </button>
-            </div>
-        </form>
+                <div class="mb-3">
+                    <label class="form-label">Ko'rsatma (ixtiyoriy)</label>
+                    {{ form.instruction }}
+                    {% if form.instruction.errors %}
+                        <div class="text-danger">{{ form.instruction.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tushuntirish (ixtiyoriy)</label>
+                    {{ form.explanation }}
+                    {% if form.explanation.errors %}
+                        <div class="text-danger">{{ form.explanation.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Labels Section -->
+                <h5 class="mb-3">Rasm ichidagi raqamlangan joylar (Labels)</h5>
+                
+                {{ formset.management_form }}
+                
+                <div id="label-formset">
+                    {% for label_form in formset %}
+                        <div class="card mb-3 label-form">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <label class="form-label">Raqam</label>
+                                        {{ label_form.label_number }}
+                                        {% if label_form.label_number.errors %}
+                                            <div class="text-danger">{{ label_form.label_number.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">To'g'ri javob</label>
+                                        {{ label_form.correct_answer }}
+                                        {% if label_form.correct_answer.errors %}
+                                            <div class="text-danger">{{ label_form.correct_answer.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label class="form-label">Alternativ javoblar</label>
+                                        {{ label_form.alternative_answers }}
+                                        {% if label_form.alternative_answers.errors %}
+                                            <div class="text-danger">{{ label_form.alternative_answers.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        {% if label_form.instance.pk %}
+                                            {{ label_form.DELETE }}
+                                            <label>O'chirish</label>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {{ label_form.id }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {% if formset.non_form_errors %}
+                    <div class="alert alert-danger">
+                        {{ formset.non_form_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">Saqlash</button>
+                    <button type="submit" name="save_and_add" class="btn btn-success">Saqlash va yana qo'shish</button>
+                    <a href="{% url 'question_group_detail' group.pk %}" class="btn btn-secondary">Bekor qilish</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<script>
-const moduleSelect = document.getElementById('{{ form.module.id_for_label }}');
-const typeSelect = document.getElementById('{{ form.type.id_for_label }}');
-const audioSection = document.getElementById('audioSection');
-const contentArea = document.getElementById('contentArea');
-
-if (moduleSelect) {
-    moduleSelect.addEventListener('change', function() {
-        if (this.value === 'listening') {
-            audioSection.style.display = 'block';
-        } else {
-            audioSection.style.display = 'none';
-        }
-    });
-    
-    if (moduleSelect.value === 'listening') {
-        audioSection.style.display = 'block';
-    }
+<style>
+.label-form {
+    border-left: 4px solid #007bff;
 }
-
-if (typeSelect) {
-    typeSelect.addEventListener('change', function() {
-        loadTemplate(this.value);
-    });
-    
-    if (typeSelect.value) {
-        loadTemplate(typeSelect.value);
-    }
-}
-
-function loadTemplate(type) {
-    contentArea.innerHTML = '<div class="template-card"><div class="template-header">Yuklanmoqda...</div></div>';
-    
-    setTimeout(() => {
-        contentArea.innerHTML = `
-            <div class="template-card">
-                <div class="template-header">${type} uchun forma</div>
-                <p style="color: #6b7280; margin-bottom: 16px;">Bu savol turi uchun maxsus maydonlar backend tomonida qayta ishlanadi.</p>
-                <div class="form-group">
-                    <label class="form-label">Savol matni <span class="required">*</span></label>
-                    <textarea name="question_text" class="form-control" rows="4" required placeholder="Savol matnini kiriting..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">To'g'ri javob <span class="required">*</span></label>
-                    <input type="text" name="correct_answer" class="form-control" required placeholder="To'g'ri javobni kiriting...">
-                </div>
-            </div>
-        `;
-    }, 300);
-}
-</script>
+</style>
 {% endblock %}

@@ -98,6 +98,8 @@ def logout_view(request):
 @login_required
 def dashboard_view(request):
     """Admin dashboard view"""
+    from .models import Group
+    
     exams = Exam.objects.filter(organization=request.user)
     total_exams = exams.count()
     active_exams = exams.filter(is_active=True).count()
@@ -106,6 +108,11 @@ def dashboard_view(request):
     total_students = results.values('student').distinct().count()
     total_attempts = results.count()
     avg_score = results.aggregate(Avg('percentage'))['percentage__avg'] or 0
+    
+    # Groups statistics
+    groups = Group.objects.filter(organization=request.user)
+    total_groups = groups.count()
+    total_teachers = Teacher.objects.filter(organization=request.user, is_active=True).count()
     
     # Recent activity - last 7 days
     from datetime import timedelta
@@ -139,6 +146,8 @@ def dashboard_view(request):
         'total_students': total_students,
         'total_attempts': total_attempts,
         'avg_score': round(avg_score, 2),
+        'total_groups': total_groups,
+        'total_teachers': total_teachers,
         'recent_results': recent_results,
         'exams': recent_exams,
         'activity_data': activity_data,
@@ -324,3 +333,104 @@ def teacher_statistics_view(request):
         })
     
     return render(request, 'organizations/teacher_statistics.html', context)
+
+
+# ==================== GROUP VIEWS ====================
+
+@login_required
+def group_list_view(request):
+    """List all groups"""
+    from .models import Group
+    
+    groups = Group.objects.filter(organization=request.user).select_related('teacher').order_by('-created_at')
+    
+    context = {
+        'groups': groups
+    }
+    return render(request, 'organizations/group_list.html', context)
+
+
+@login_required
+def group_create_view(request):
+    """Create new group"""
+    from .forms import GroupForm
+    
+    if request.method == 'POST':
+        form = GroupForm(request.POST, organization=request.user)
+        if form.is_valid():
+            group = form.save(commit=False)
+            group.organization = request.user
+            group.save()
+            messages.success(request, f'Guruh "{group.name}" muvaffaqiyatli yaratildi!')
+            return redirect('group_list')
+    else:
+        form = GroupForm(organization=request.user)
+    
+    context = {
+        'form': form,
+        'title': 'Yangi guruh qo\'shish'
+    }
+    return render(request, 'organizations/group_form.html', context)
+
+
+@login_required
+def group_detail_view(request, pk):
+    """Group detail view"""
+    from .models import Group
+    
+    group = get_object_or_404(Group, pk=pk, organization=request.user)
+    students = group.students.all().order_by('first_name', 'last_name')
+    
+    context = {
+        'group': group,
+        'students': students
+    }
+    return render(request, 'organizations/group_detail.html', context)
+
+
+@login_required
+def group_edit_view(request, pk):
+    """Edit group"""
+    from .models import Group
+    from .forms import GroupForm
+    
+    group = get_object_or_404(Group, pk=pk, organization=request.user)
+    
+    if request.method == 'POST':
+        form = GroupForm(request.POST, instance=group, organization=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Guruh "{group.name}" yangilandi!')
+            return redirect('group_detail', pk=group.pk)
+    else:
+        # Pre-populate weekdays for editing
+        initial_data = {
+            'weekdays': group.weekdays.split(',') if group.weekdays else []
+        }
+        form = GroupForm(instance=group, organization=request.user, initial=initial_data)
+    
+    context = {
+        'form': form,
+        'group': group,
+        'title': 'Guruhni tahrirlash'
+    }
+    return render(request, 'organizations/group_form.html', context)
+
+
+@login_required
+def group_delete_view(request, pk):
+    """Delete group"""
+    from .models import Group
+    
+    group = get_object_or_404(Group, pk=pk, organization=request.user)
+    
+    if request.method == 'POST':
+        group_name = group.name
+        group.delete()
+        messages.success(request, f'Guruh "{group_name}" o\'chirildi!')
+        return redirect('group_list')
+    
+    context = {
+        'group': group
+    }
+    return render(request, 'organizations/group_confirm_delete.html', context)
