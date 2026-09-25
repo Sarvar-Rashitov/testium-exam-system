@@ -30,3 +30,4 @@ local_settings.py
 *.swp
 *.swo
 *~
+db.sqlite3
